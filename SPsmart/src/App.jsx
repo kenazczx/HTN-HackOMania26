@@ -742,12 +742,22 @@ export default function App() {
 
   return (
     <div style={{
+      minHeight: "100vh",
+      background: "#e2e8f0",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "flex-start",
+      padding: "24px 0",
+    }}>
+    <div style={{
       fontFamily: "'Inter', 'Segoe UI', sans-serif",
       background: COLORS.bg,
-      minHeight: "100vh",
+      minHeight: "calc(100vh - 48px)",
       color: COLORS.text,
+      width: "100%",
       maxWidth: 430,
-      margin: "0 auto",
+      borderRadius: 20,
+      boxShadow: "0 8px 40px #0002, 0 2px 8px #0001",
       position: "relative",
       overflowX: "hidden",
     }}>
@@ -2291,18 +2301,6 @@ export default function App() {
 
       </div>
 
-      {/* Bottom Nav Glow */}
-      <div style={{
-        position: "fixed",
-        bottom: 0,
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "100%",
-        maxWidth: 430,
-        height: 60,
-        background: "linear-gradient(0deg, #0f172a 60%, transparent)",
-        pointerEvents: "none",
-      }} />
 
       <style>{`
         @keyframes fadeIn {
@@ -2312,6 +2310,7 @@ export default function App() {
         * { box-sizing: border-box; }
         button { font-family: inherit; }
       `}</style>
+    </div>
     </div>
   );
 }
