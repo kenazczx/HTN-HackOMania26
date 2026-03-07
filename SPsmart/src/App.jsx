@@ -1063,7 +1063,7 @@ export default function App() {
                     <span style={{ fontSize: 16, fontWeight: 800, color: COLORS.text }}>${PRICING.flat.rate.toFixed(4)}<span style={{ fontSize: 10, color: COLORS.textMuted }}> /kWh</span></span>
                   </div>
                   <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 10 }}>{PRICING.flat.desc}</div>
-                  <div style={{ background: "#0f172a", borderRadius: 10, padding: 10, display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                  <div style={{ background: "#f1f5f9", border: `1px solid ${COLORS.cardBorder}`, borderRadius: 10, padding: 10, display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                     <div style={{ textAlign: "center" }}>
                       <div style={{ fontSize: 10, color: COLORS.textMuted }}>Today's cost</div>
                       <div style={{ fontSize: 16, fontWeight: 800, color: COLORS.green }}>${(halfHourlyData.reduce((a, b) => a + b, 0) * PRICING.flat.rate).toFixed(3)}</div>
@@ -1162,7 +1162,7 @@ export default function App() {
                         </div>
 
                         {/* Actual breakdown */}
-                        <div style={{ background: "#0f172a", borderRadius: 10, padding: 10 }}>
+                        <div style={{ background: "#f1f5f9", border: `1px solid ${COLORS.cardBorder}`, borderRadius: 10, padding: 10 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                             <span style={{ fontSize: 11, color: COLORS.textMuted }}>Peak cost ({peakKwh.toFixed(2)} kWh)</span>
                             <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.peak }}>${peakCost.toFixed(3)}</span>
