@@ -5,24 +5,24 @@ import GRABFOOD_LOGO from "./assets/grabfood-logo.png";
 import KOPITIAM_LOGO from "./assets/kopitiam-logo.png";
 
 const COLORS = {
-  bg: "#0a0f1e",
-  card: "#111827",
-  cardBorder: "#1f2d45",
-  accent: "#00d4aa",
-  accentSoft: "#00d4aa22",
+  bg: "#f8fafc",
+  card: "#ffffff",
+  cardBorder: "#dbe3f0",
+  accent: "#00bfa5",
+  accentSoft: "#00bfa522",
   peak: "#f97316",
   peakSoft: "#f9731622",
   spike: "#ef4444",
   spikeSoft: "#ef444422",
-  normal: "#3b82f6",
-  normalSoft: "#3b82f622",
-  gold: "#fbbf24",
-  text: "#f1f5f9",
+  normal: "#2563eb",
+  normalSoft: "#2563eb22",
+  gold: "#f59e0b",
+  text: "#0f172a",
   textMuted: "#64748b",
-  textSub: "#94a3b8",
-  green: "#22c55e",
-  greenSoft: "#22c55e22",
-  purple: "#a855f7",
+  textSub: "#475569",
+  green: "#16a34a",
+  greenSoft: "#16a34a22",
+  purple: "#7c3aed",
 };
 
 const halfHourlyData = [
@@ -201,12 +201,12 @@ function TreeSVG({ variant, size }) {
     // Bare plot — cracked dry soil mound, no tree
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block" }}>
-        <ellipse cx="12" cy="20" rx="9" ry="3.5" fill="#2a1a08" />
-        <ellipse cx="12" cy="19" rx="7" ry="2.5" fill="#3b2510" />
+        <ellipse cx="12" cy="20" rx="9" ry="3.5" fill="#a16207" />
+        <ellipse cx="12" cy="19" rx="7" ry="2.5" fill="#92400e" />
         {/* Crack lines */}
-        <line x1="10" y1="18" x2="9" y2="20" stroke="#1a0f04" strokeWidth="0.5" opacity="0.7"/>
-        <line x1="13" y1="17" x2="15" y2="20" stroke="#1a0f04" strokeWidth="0.5" opacity="0.7"/>
-        <line x1="11" y1="18" x2="12" y2="21" stroke="#1a0f04" strokeWidth="0.4" opacity="0.5"/>
+        <line x1="10" y1="18" x2="9" y2="20" stroke="#78350f" strokeWidth="0.5" opacity="0.7"/>
+        <line x1="13" y1="17" x2="15" y2="20" stroke="#78350f" strokeWidth="0.5" opacity="0.7"/>
+        <line x1="11" y1="18" x2="12" y2="21" stroke="#78350f" strokeWidth="0.4" opacity="0.5"/>
       </svg>
     );
   }
@@ -298,10 +298,10 @@ function ForestPlot() {
   const nationalPct = 70;
 
   return (
-    <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: "1px solid #1c3a20", background: "#060e07" }}>
+    <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: "1px solid #86efac", background: "#f0fdf4" }}>
 
       {/* Header */}
-      <div style={{ padding: "12px 14px 10px", background: "linear-gradient(135deg, #0a1e0d, #0d2611)", borderBottom: "1px solid #1c3a20" }}>
+      <div style={{ padding: "12px 14px 10px", background: "linear-gradient(135deg, #bbf7d0, #86efac)", borderBottom: "1px solid #86efac" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
             <div style={{ fontSize: 10, color: COLORS.green, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>
@@ -320,7 +320,7 @@ function ForestPlot() {
 
         {/* National progress bar */}
         <div style={{ marginTop: 8 }}>
-          <div style={{ background: "#1c3a20", borderRadius: 99, height: 4, overflow: "hidden" }}>
+          <div style={{ background: "#d1fae5", borderRadius: 99, height: 4, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${nationalPct}%`, background: "linear-gradient(90deg, #15803d, #22c55e)", borderRadius: 99, boxShadow: "0 0 6px #22c55e66" }} />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
@@ -346,7 +346,7 @@ function ForestPlot() {
             flex: 1, padding: "6px 2px", fontSize: 10,
             fontWeight: view === btn.key ? 800 : 500,
             borderRadius: 8,
-            border: `1.5px solid ${view === btn.key ? btn.color : "#1c3a20"}`,
+            border: `1.5px solid ${view === btn.key ? btn.color : "#d1fae5"}`,
             background: view === btn.key ? btn.color + "22" : "transparent",
             color: view === btn.key ? btn.color : COLORS.textMuted,
             cursor: "pointer", transition: "all 0.2s",
@@ -357,15 +357,15 @@ function ForestPlot() {
       {/* THE FOREST PLOT */}
       <div style={{ padding: "8px 8px 4px" }}>
         <div style={{
-          background: "linear-gradient(180deg, #0d1f10 0%, #0a1a0c 40%, #122010 100%)",
+          background: "linear-gradient(180deg, #d1fae5 0%, #bbf7d0 40%, #86efac 100%)",
           borderRadius: 10,
           padding: "8px 4px 0",
-          border: "1px solid #1c3a20",
+          border: "1px solid #86efac",
           position: "relative",
           overflow: "hidden",
         }}>
           {/* Misty sky atmosphere */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 16, background: "linear-gradient(180deg, #0d2611aa 0%, transparent 100%)", zIndex: 1, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 16, background: "linear-gradient(180deg, #bbf7d088 0%, transparent 100%)", zIndex: 1, pointerEvents: "none" }} />
 
           <div style={{
             display: "grid",
@@ -390,7 +390,7 @@ function ForestPlot() {
           </div>
 
           {/* Ground */}
-          <div style={{ height: 10, background: "linear-gradient(180deg, #1a3a10 0%, #0f2208 100%)", marginTop: 1 }} />
+          <div style={{ height: 10, background: "linear-gradient(180deg, #86efac 0%, #4ade80 100%)", marginTop: 1 }} />
         </div>
       </div>
 
@@ -413,7 +413,7 @@ function ForestPlot() {
       </div>
 
       {/* Stats card */}
-      <div style={{ margin: "4px 8px 8px", background: "#0a1e0c", border: "1px solid #1c3a20", borderRadius: 10, padding: "12px 12px 10px" }}>
+      <div style={{ margin: "4px 8px 8px", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10, padding: "12px 12px 10px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, color: data.color, fontWeight: 700 }}>{data.label}</div>
@@ -430,7 +430,7 @@ function ForestPlot() {
         </div>
 
         {/* Comparison vs baseline */}
-        <div style={{ background: "#071208", borderRadius: 8, padding: "8px 10px", borderLeft: "3px solid #facc15" }}>
+        <div style={{ background: "#f0fdf4", borderRadius: 8, padding: "8px 10px", borderLeft: "3px solid #facc15" }}>
           <div style={{ fontSize: 9, color: "#facc15", fontWeight: 700, marginBottom: 3, textTransform: "uppercase", letterSpacing: 1 }}>
             vs Baseline · EMA 2024
           </div>
@@ -443,7 +443,7 @@ function ForestPlot() {
         </div>
 
         {/* Mini fill bar */}
-        <div style={{ marginTop: 8, background: "#1c3a20", borderRadius: 99, height: 5, overflow: "hidden" }}>
+        <div style={{ marginTop: 8, background: "#d1fae5", borderRadius: 99, height: 5, overflow: "hidden" }}>
           <div style={{
             height: "100%",
             width: view === "district" ? "100%" : `${(data.cells / TOTAL_CELLS) * 100}%`,
@@ -460,7 +460,7 @@ function ForestPlot() {
       </div>
 
       {/* Data source footnote */}
-      <div style={{ padding: "0 12px 10px", borderTop: "1px solid #1c3a20" }}>
+      <div style={{ padding: "0 12px 10px", borderTop: "1px solid #86efac" }}>
         <div style={{ fontSize: 8.5, color: COLORS.textMuted, lineHeight: 1.6, marginTop: 8 }}>
           <span style={{ color: COLORS.green, fontWeight: 700 }}>Data sources: </span>
           EMA Grid Emission Factor 0.402 kgCO₂/kWh (Singapore Energy Statistics 2024) ·
@@ -678,7 +678,7 @@ export default function App() {
       value: "$10",
       pts: 500,
       color: "#e8203a",
-      bg: "#2a0a0e",
+      bg: "#fff1f2",
       border: "#e8203a55",
       desc: "FairPrice supermarket voucher",
       logo: FAIRPRICE_LOGO,
@@ -689,7 +689,7 @@ export default function App() {
       value: "$20",
       pts: 950,
       color: "#e8203a",
-      bg: "#2a0a0e",
+      bg: "#fff1f2",
       border: "#e8203a55",
       desc: "FairPrice supermarket voucher",
       logo: FAIRPRICE_LOGO,
@@ -700,7 +700,7 @@ export default function App() {
       value: "$5 Bill Rebate",
       pts: 300,
       color: COLORS.accent,
-      bg: "#0a1e1a",
+      bg: "#f0fdf4",
       border: COLORS.accent + "55",
       desc: "Credited to your SP account",
       logo: SP_LOGO,
@@ -711,7 +711,7 @@ export default function App() {
       value: "$15 Bill Rebate",
       pts: 800,
       color: COLORS.accent,
-      bg: "#0a1e1a",
+      bg: "#f0fdf4",
       border: COLORS.accent + "55",
       desc: "Credited to your SP account",
       logo: SP_LOGO,
@@ -722,7 +722,7 @@ export default function App() {
       value: "$5",
       pts: 400,
       color: "#00B14F",
-      bg: "#0a1e0e",
+      bg: "#f0fdf4",
       border: "#00B14F55",
       desc: "GrabFood delivery voucher",
       logo: GRABFOOD_LOGO,
@@ -733,7 +733,7 @@ export default function App() {
       value: "$5",
       pts: 350,
       color: "#f59e0b",
-      bg: "#1e150a",
+      bg: "#fffbeb",
       border: "#f59e0b55",
       desc: "Kopitiam food court credits",
       logo: KOPITIAM_LOGO,
@@ -754,14 +754,15 @@ export default function App() {
       {/* Header */}
       <div style={{
         padding: "20px 20px 0",
-        background: `linear-gradient(180deg, #0d1528 0%, ${COLORS.bg} 100%)`,
+        background: "#ffffff",
+        borderBottom: `1px solid ${COLORS.cardBorder}`,
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <img
               src={SP_LOGO}
               alt="SP Group"
-              style={{ height: 36, width: "auto", objectFit: "contain", mixBlendMode: "screen" }}
+              style={{ height: 36, width: "auto", objectFit: "contain" }}
             />
             <div style={{ borderLeft: `1px solid ${COLORS.cardBorder}`, paddingLeft: 10 }}>
               <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: -0.5, lineHeight: 1.1 }}>
@@ -812,7 +813,7 @@ export default function App() {
         <div style={{
           display: "flex",
           gap: 2,
-          background: "#0d1528",
+          background: "#eef2f7",
           borderRadius: 12,
           padding: 4,
           marginBottom: 0,
@@ -830,7 +831,7 @@ export default function App() {
                 fontSize: 10,
                 fontWeight: tab === t.id ? 700 : 500,
                 background: tab === t.id ? COLORS.accent : "transparent",
-                color: tab === t.id ? "#0a0f1e" : COLORS.textMuted,
+                color: tab === t.id ? "#0f172a" : COLORS.textMuted,
                 transition: "all 0.2s",
               }}
             >
@@ -919,7 +920,7 @@ export default function App() {
                                 bottom: barH + 6,
                                 left: "50%",
                                 transform: "translateX(-50%)",
-                                background: "#1e293b",
+                                background: "#f1f5f9",
                                 border: `1px solid ${color}`,
                                 borderRadius: 6,
                                 padding: "3px 6px",
@@ -1062,7 +1063,7 @@ export default function App() {
                     <span style={{ fontSize: 16, fontWeight: 800, color: COLORS.text }}>${PRICING.flat.rate.toFixed(4)}<span style={{ fontSize: 10, color: COLORS.textMuted }}> /kWh</span></span>
                   </div>
                   <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 10 }}>{PRICING.flat.desc}</div>
-                  <div style={{ background: "#0a0f1e", borderRadius: 10, padding: 10, display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                  <div style={{ background: "#0f172a", borderRadius: 10, padding: 10, display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                     <div style={{ textAlign: "center" }}>
                       <div style={{ fontSize: 10, color: COLORS.textMuted }}>Today's cost</div>
                       <div style={{ fontSize: 16, fontWeight: 800, color: COLORS.green }}>${(halfHourlyData.reduce((a, b) => a + b, 0) * PRICING.flat.rate).toFixed(3)}</div>
@@ -1128,7 +1129,7 @@ export default function App() {
                       <div>
                         {/* Potential savings highlight */}
                         <div style={{
-                          background: "linear-gradient(135deg, #0a2a1a, #0a1a2a)",
+                          background: "linear-gradient(135deg, #e0f2fe, #dbeafe)",
                           border: `1.5px solid ${COLORS.green}55`,
                           borderRadius: 12, padding: 14, marginBottom: 10,
                         }}>
@@ -1161,7 +1162,7 @@ export default function App() {
                         </div>
 
                         {/* Actual breakdown */}
-                        <div style={{ background: "#0a0f1e", borderRadius: 10, padding: 10 }}>
+                        <div style={{ background: "#0f172a", borderRadius: 10, padding: 10 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                             <span style={{ fontSize: 11, color: COLORS.textMuted }}>Peak cost ({peakKwh.toFixed(2)} kWh)</span>
                             <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.peak }}>${peakCost.toFixed(3)}</span>
@@ -1210,7 +1211,7 @@ export default function App() {
                 <div>
                   {/* AI Summary Box */}
                   <div style={{
-                    background: "#0d1a30", border: `1px solid ${COLORS.accent}44`,
+                    background: "#dbeafe", border: `1px solid ${COLORS.accent}44`,
                     borderRadius: 14, padding: 14, marginBottom: 12,
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
@@ -1220,14 +1221,14 @@ export default function App() {
                       </div>
                       {!showAI && (
                         <button onClick={typeAI} style={{
-                          background: COLORS.accent, color: "#0a0f1e", border: "none",
+                          background: COLORS.accent, color: "#0f172a", border: "none",
                           borderRadius: 8, padding: "5px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer",
                         }}>Analyse with AI →</button>
                       )}
                     </div>
 
                     {/* Always-visible algorithmic summary */}
-                    <div style={{ background: "#0a1020", borderRadius: 10, padding: 10, marginBottom: 10 }}>
+                    <div style={{ background: "#e0f2fe", borderRadius: 10, padding: 10, marginBottom: 10 }}>
                       <div style={{ fontSize: 10, color: COLORS.textMuted, fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>Pattern Detection</div>
                       <p style={{ fontSize: 12.5, color: COLORS.textSub, lineHeight: 1.7, margin: 0 }}>{algoSummary}</p>
                     </div>
@@ -1353,7 +1354,7 @@ export default function App() {
               <div style={{
                 position: "fixed", top: "50%", left: "50%",
                 transform: "translate(-50%, -50%)",
-                background: "linear-gradient(135deg, #1a0a30, #2d1060)",
+                background: "linear-gradient(135deg, #f3e8ff, #ede9fe)",
                 border: `2px solid ${COLORS.purple}`, borderRadius: 20,
                 padding: "28px 36px", zIndex: 999, textAlign: "center",
                 boxShadow: `0 0 60px ${COLORS.purple}66`, animation: "fadeIn 0.3s ease",
@@ -1450,7 +1451,7 @@ export default function App() {
               <div>
                 {/* Broken banner */}
                 <div style={{
-                  background: "linear-gradient(135deg, #1a0505, #2a0a0a)",
+                  background: "linear-gradient(135deg, #fff1f2, #ffe4e6)",
                   border: `1.5px solid ${COLORS.spike}66`,
                   borderRadius: 18, padding: 16, marginBottom: 14,
                 }}>
@@ -1471,7 +1472,7 @@ export default function App() {
                       { val: "$1.25", unit: "", label: "Total saved", color: COLORS.green },
                     ].map(s => (
                       <div key={s.label} style={{
-                        flex: 1, background: "#0f0505",
+                        flex: 1, background: "#fff1f2",
                         border: `1px solid ${COLORS.cardBorder}`,
                         borderRadius: 10, padding: "8px 4px", textAlign: "center",
                       }}>
@@ -1498,7 +1499,7 @@ export default function App() {
                             background: day.broken ? COLORS.spike + "33" : day.done ? COLORS.gold : COLORS.cardBorder,
                             border: day.broken ? `1.5px solid ${COLORS.spike}` : "none",
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: 10, color: day.broken ? COLORS.spike : day.done ? "#0a0f1e" : COLORS.textMuted,
+                            fontSize: 10, color: day.broken ? COLORS.spike : day.done ? "#0f172a" : COLORS.textMuted,
                             fontWeight: 700,
                           }}>{day.broken ? "✕" : day.done ? "✓" : ""}</div>
                           <div style={{ fontSize: 8, color: day.broken ? COLORS.spike : day.done ? COLORS.gold : COLORS.textMuted }}>{day.d}</div>
@@ -1524,7 +1525,7 @@ export default function App() {
 
                 {/* AI suggests an easier starter goal */}
                 <div style={{
-                  background: "#0a1525", border: `1px solid ${COLORS.accent}44`,
+                  background: "#e0f2fe", border: `1px solid ${COLORS.accent}44`,
                   borderRadius: 14, padding: 14, marginBottom: 14,
                 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.accent, marginBottom: 8 }}>AI Habit Coach</div>
@@ -1568,7 +1569,7 @@ export default function App() {
               <div>
                 {/* ── AI Habit Coach (top of screen) ── */}
                 <div style={{
-                  background: "linear-gradient(135deg, #071a2e, #0a1e35)",
+                  background: "linear-gradient(135deg, #e0f2fe, #dbeafe)",
                   border: `1.5px solid ${COLORS.accent}44`,
                   borderRadius: 14, padding: 14, marginBottom: 14,
                 }}>
@@ -1600,7 +1601,7 @@ export default function App() {
 
                 {/* Streak Hero Card */}
                 <div style={{
-                  background: "linear-gradient(135deg, #1a1000, #2a1c00)",
+                  background: "linear-gradient(135deg, #fefce8, #fef9c3)",
                   border: `1.5px solid ${COLORS.gold}66`,
                   borderRadius: 18, padding: 16, marginBottom: 14,
                 }}>
@@ -1621,7 +1622,7 @@ export default function App() {
                               width: 22, height: 22, borderRadius: "50%",
                               background: i < streak ? COLORS.gold : COLORS.cardBorder,
                               display: "flex", alignItems: "center", justifyContent: "center",
-                              fontSize: 10, color: i < streak ? "#0a0f1e" : COLORS.textMuted,
+                              fontSize: 10, color: i < streak ? "#0f172a" : COLORS.textMuted,
                               boxShadow: i < streak ? `0 0 8px ${COLORS.gold}88` : "none",
                               fontWeight: 700,
                             }}>{i < streak ? "✓" : ""}</div>
@@ -1634,7 +1635,7 @@ export default function App() {
 
                   {/* Feedback loop */}
                   <div style={{
-                    marginTop: 14, background: "#0f0a00",
+                    marginTop: 14, background: "#fefce8",
                     border: "1px solid #3a2800", borderRadius: 12, padding: 12,
                   }}>
                     <div style={{ fontSize: 10, color: COLORS.gold, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>
@@ -1707,7 +1708,7 @@ export default function App() {
                 {/* Streak Protection — hidden once accepted */}
                 {!streakProtectionAccepted && (
                 <div style={{
-                  background: "linear-gradient(135deg, #1a0a0a, #2a0f0f)",
+                  background: "linear-gradient(135deg, #fff1f2, #ffe4e6)",
                   border: `1.5px solid ${COLORS.spike}55`,
                   borderRadius: 16, padding: 14, marginBottom: 14,
                 }}>
@@ -1717,7 +1718,7 @@ export default function App() {
                     Your pre-cooling goal might be tough today. Here's a simpler goal to keep your streak alive:
                   </div>
                   <div style={{
-                    background: "#0f0a00", border: `1px solid ${COLORS.gold}44`,
+                    background: "#fefce8", border: `1px solid ${COLORS.gold}44`,
                     borderRadius: 12, padding: 12, marginBottom: 10,
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1754,7 +1755,7 @@ export default function App() {
             {/* ── Grid Strain Event ── */}
             {gridStrainVisible && !gridStrainClaimed && (
               <div style={{
-                background: "linear-gradient(135deg, #1a0820, #0f1535)",
+                background: "linear-gradient(135deg, #f3e8ff, #ede9fe)",
                 border: `1.5px solid ${COLORS.purple}66`,
                 borderRadius: 16, padding: 16, marginBottom: 14,
               }}>
@@ -1770,7 +1771,7 @@ export default function App() {
 
                 {/* Qualification */}
                 <div style={{
-                  marginTop: 10, background: "#0d0818", border: `1px solid ${COLORS.purple}33`,
+                  marginTop: 10, background: "#f3e8ff", border: `1px solid ${COLORS.purple}33`,
                   borderRadius: 10, padding: 10,
                 }}>
                   <div style={{ fontSize: 10, color: COLORS.purple, fontWeight: 700, marginBottom: 6, letterSpacing: 0.5 }}>HOW TO QUALIFY</div>
@@ -1825,7 +1826,7 @@ export default function App() {
 
             {/* ── AI Suggested Tasks ── */}
             <div id="ai-tasks-section" style={{
-              background: "#0d1a2e", border: `1px solid ${COLORS.accent}33`,
+              background: "#dbeafe", border: `1px solid ${COLORS.accent}33`,
               borderRadius: 14, padding: 14, marginBottom: 14,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: aiTasks.length > 0 ? 12 : 0 }}>
@@ -1853,7 +1854,7 @@ export default function App() {
                         background: aiTasksDone[i] ? COLORS.green : "transparent",
                         border: `2px solid ${aiTasksDone[i] ? COLORS.green : COLORS.textMuted}`,
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 12, fontWeight: 800, color: "#0a0f1e", transition: "all 0.2s",
+                        fontSize: 12, fontWeight: 800, color: "#0f172a", transition: "all 0.2s",
                       }}>{aiTasksDone[i] ? "✓" : ""}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 13, fontWeight: aiTasksDone[i] ? 500 : 700, color: aiTasksDone[i] ? COLORS.textMuted : COLORS.text, textDecoration: aiTasksDone[i] ? "line-through" : "none" }}>{t.task}</div>
@@ -1891,7 +1892,7 @@ export default function App() {
 
             {/* Period toggle */}
             <div style={{
-              display: "flex", gap: 3, background: "#0d1528",
+              display: "flex", gap: 3, background: "#eef2f7",
               borderRadius: 12, padding: 4, marginBottom: 14,
             }}>
               {[["week","Week"],["month","Month"],["year","Year"]].map(([key, lbl]) => (
@@ -1899,7 +1900,7 @@ export default function App() {
                   flex: 1, padding: "8px 4px", borderRadius: 9, border: "none",
                   cursor: "pointer", fontSize: 12, fontWeight: impactPeriod === key ? 800 : 500,
                   background: impactPeriod === key ? COLORS.green : "transparent",
-                  color: impactPeriod === key ? "#0a0f1e" : COLORS.textMuted,
+                  color: impactPeriod === key ? "#0f172a" : COLORS.textMuted,
                   transition: "all 0.2s",
                 }}>{lbl}</button>
               ))}
@@ -1916,7 +1917,7 @@ export default function App() {
               return (
                 <>
                   <div style={{
-                    background: "linear-gradient(135deg, #0a1e10, #0d2818)",
+                    background: "linear-gradient(135deg, #f0fdf4, #dcfce7)",
                     border: `1.5px solid ${COLORS.green}55`,
                     borderRadius: 18, padding: 20, marginBottom: 12, textAlign: "center",
                   }}>
@@ -1995,7 +1996,7 @@ export default function App() {
 
             {/* Neighbourhood Impact */}
             <div style={{
-              background: "linear-gradient(135deg, #0a1525, #0d1e38)",
+              background: "linear-gradient(135deg, #e0f2fe, #dbeafe)",
               border: `1.5px solid ${COLORS.normal}44`,
               borderRadius: 18,
               padding: 16,
@@ -2060,7 +2061,7 @@ export default function App() {
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Block Leaderboard · Toa Payoh</div>
             {leaderboard.map((b, i) => (
               <div key={b.block} style={{
-                background: i === 0 ? "linear-gradient(135deg, #1a1200, #2a1e00)" : COLORS.card,
+                background: i === 0 ? "linear-gradient(135deg, #fefce8, #fef9c3)" : COLORS.card,
                 border: `1px solid ${i === 0 ? COLORS.gold + "88" : COLORS.cardBorder}`,
                 borderRadius: 12,
                 padding: "12px 14px",
@@ -2073,7 +2074,7 @@ export default function App() {
                   width: 28, height: 28, borderRadius: "50%",
                   background: i === 0 ? COLORS.gold : i === 1 ? "#94a3b8" : i === 2 ? "#b45309" : COLORS.cardBorder,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontWeight: 800, fontSize: 13, color: i < 3 ? "#0a0f1e" : COLORS.textMuted,
+                  fontWeight: 800, fontSize: 13, color: i < 3 ? "#0f172a" : COLORS.textMuted,
                   flexShrink: 0,
                 }}>{b.rank}</div>
                 <div style={{ flex: 1 }}>
@@ -2089,7 +2090,7 @@ export default function App() {
             {/* Drop of Water analogy */}
             <div style={{
               marginTop: 8,
-              background: "#0a1525",
+              background: "#e0f2fe",
               border: `1px solid ${COLORS.normal}33`,
               borderRadius: 14,
               padding: 14,
@@ -2112,7 +2113,7 @@ export default function App() {
 
             {/* Points Hero */}
             <div style={{
-              background: "linear-gradient(135deg, #1a1200, #2a1e00)",
+              background: "linear-gradient(135deg, #fefce8, #fef9c3)",
               border: `1.5px solid ${COLORS.gold}66`,
               borderRadius: 18, padding: 20, marginBottom: 14, textAlign: "center",
             }}>
@@ -2188,7 +2189,7 @@ export default function App() {
                     background: tier.unlocked ? COLORS.gold : COLORS.cardBorder,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 11, fontWeight: 900,
-                    color: tier.unlocked ? "#0a0f1e" : COLORS.textMuted,
+                    color: tier.unlocked ? "#0f172a" : COLORS.textMuted,
                   }}>{tier.unlocked ? "✓" : `D${tier.days}`}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: tier.unlocked ? COLORS.gold : COLORS.textMuted }}>
@@ -2277,7 +2278,7 @@ export default function App() {
             })}
 
             <div style={{
-              background: "#0a1525", border: `1px solid ${COLORS.normal}33`,
+              background: "#e0f2fe", border: `1px solid ${COLORS.normal}33`,
               borderRadius: 14, padding: 14, marginTop: 4, textAlign: "center",
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.normal, marginBottom: 4 }}>More rewards coming</div>
@@ -2299,7 +2300,7 @@ export default function App() {
         width: "100%",
         maxWidth: 430,
         height: 60,
-        background: "linear-gradient(0deg, #0a0f1e 60%, transparent)",
+        background: "linear-gradient(0deg, #0f172a 60%, transparent)",
         pointerEvents: "none",
       }} />
 
