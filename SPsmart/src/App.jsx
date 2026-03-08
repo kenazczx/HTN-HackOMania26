@@ -175,7 +175,7 @@ const VIEW_DATA = {
     baseline: "Avg SG household this month: 0 kg offset (no action taken)",
   },
   you_year: {
-    cells: 14,
+    cells: 3,
     treesEquiv: 2597,
     co2kg: 202.6,
     label: "You · Full Year",
@@ -185,13 +185,13 @@ const VIEW_DATA = {
     baseline: "SG avg household uses 7,200 kWh/yr (no savings assumed)",
   },
   district: {
-    cells: 200,
-    treesEquiv: 505000,
+    cells: 16,
+    treesEquiv: 1680,
     co2kg: 472640,
     label: "Toa Payoh · 1 Month",
     color: "#15803d",
     desc: "28,000 households × 42 kWh = 1.18M kWh saved",
-    sub: "→ fills the entire district plot in just 1 month",
+    sub: "→ 1,680 tree-equivalents = 0.17% of national 1M Trees goal",
     baseline: "District baseline (no action): 28,000 × 600 kWh = 16.8M kWh/month consumed",
   },
 };
@@ -317,7 +317,7 @@ function ForestPlot() {
         </div>
 
         <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 6, lineHeight: 1.5 }}>
-          Each cell = ~179 trees · Full plot = Toa Payoh's 35,714-tree target
+          Each cell = ~100 trees · Full plot = 20,000 trees shown (of 1M national goal)
         </div>
       </div>
 
@@ -401,11 +401,11 @@ function ForestPlot() {
             <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 2 }}>{data.sub}</div>
           </div>
           <div style={{ textAlign: "right", marginLeft: 10, flexShrink: 0 }}>
-            <div style={{ fontSize: 9, color: COLORS.textMuted }}>Plot filled</div>
+            <div style={{ fontSize: 9, color: COLORS.textMuted }}>National target</div>
             <div style={{ fontSize: 24, fontWeight: 900, color: data.color, lineHeight: 1 }}>
-              {view === "district" ? "100" : pctOfGoal}<span style={{ fontSize: 12 }}>%</span>
+              {view === "district" ? "0.17" : view === "you_year" ? "0.26" : "<0.1"}<span style={{ fontSize: 12 }}>%</span>
             </div>
-            <div style={{ fontSize: 9, color: COLORS.textMuted }}>of district target</div>
+            <div style={{ fontSize: 9, color: COLORS.textMuted }}>of 1M Trees goal</div>
           </div>
         </div>
 
@@ -424,16 +424,17 @@ function ForestPlot() {
         <div style={{ marginTop: 8, background: "#d1fae5", borderRadius: 99, height: 5, overflow: "hidden" }}>
           <div style={{
             height: "100%",
-            width: view === "district" ? "100%" : `${(data.cells / TOTAL_CELLS) * 100}%`,
+            width: view === "district" ? "0.17%" : view === "you_year" ? "0.26%" : "0.003%",
             background: `linear-gradient(90deg, ${data.color}, #86efac)`,
             borderRadius: 99,
             transition: "width 1.2s ease 0.3s",
             boxShadow: `0 0 8px ${data.color}88`,
+            minWidth: 3,
           }} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
           <span style={{ fontSize: 9, color: COLORS.textMuted }}>0 trees</span>
-          <span style={{ fontSize: 9, color: COLORS.textMuted }}>35,714 trees (Toa Payoh target)</span>
+          <span style={{ fontSize: 9, color: COLORS.textMuted }}>1,000,000 trees (national goal)</span>
         </div>
       </div>
 
@@ -1233,8 +1234,8 @@ export default function App() {
 
                   <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 0.8, textTransform: "uppercase" }}>Ways to Shift Peak Demand</div>
                   {[
-                    { tip: "Run washing machine before 7am or after 10pm", saving: "~0.5 kWh shifted", color: COLORS.accent },
                     { tip: "Pre-cool flat to 25°C before 6pm, raise thermostat at 7pm", saving: "~0.6 kWh shifted", color: COLORS.accent },
+                    { tip: "Run washing machine before 7am or after 10pm", saving: "~0.5 kWh shifted", color: COLORS.accent },
                     { tip: "Use oven or hob before 6:30pm — avoid simultaneous peak appliances", saving: "~0.4 kWh shifted", color: COLORS.accent },
                     { tip: "Delay dishwasher and EV charging until after 10pm", saving: "~0.3 kWh shifted", color: COLORS.accent },
                   ].map((item, i) => (
@@ -1242,8 +1243,9 @@ export default function App() {
                       background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`,
                       borderRadius: 10, padding: "10px 12px", marginBottom: 8,
                       borderLeft: `3px solid ${COLORS.accent}`,
-                      display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10,
+                      display: "flex", alignItems: "center", gap: 10,
                     }}>
+                      <div style={{ fontSize: 13, fontWeight: 900, color: COLORS.accent, flexShrink: 0, width: 18, textAlign: "center" }}>{i + 1}</div>
                       <span style={{ fontSize: 12, color: COLORS.text, flex: 1, lineHeight: 1.5 }}>{item.tip}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, color: COLORS.accent, flexShrink: 0 }}>{item.saving}</span>
                     </div>
