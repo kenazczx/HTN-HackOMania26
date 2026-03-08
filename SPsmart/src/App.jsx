@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import SP_LOGO from "./assets/sp-logo.svg";
+import { useState, useEffect } from "react";
+import SP_LOGO from "./assets/sp-group.png";
 import FAIRPRICE_LOGO from "./assets/fairprice-logo.png";
 import GRABFOOD_LOGO from "./assets/grabfood-logo.png";
 import KOPITIAM_LOGO from "./assets/kopitiam-logo.png";
@@ -44,23 +44,20 @@ const PEAK_END = 28;
 const SPIKE_INDICES = [21, 22, 23, 24, 25];
 const avg = halfHourlyData.reduce((a, b) => a + b) / halfHourlyData.length;
 
-// Pricing models (SGD per kWh, based on SP Group indicative rates)
 const PRICING = {
   flat: { rate: 0.3256, label: "Flat Rate", desc: "Same price all day" },
   tou: {
-    peak: 0.4100,      // 7am–11pm weekdays
-    offPeak: 0.1890,   // 11pm–7am & weekends
+    peak: 0.4100,
+    offPeak: 0.1890,
     label: "Time-of-Use",
     desc: "Peak 7am–11pm · Off-peak 11pm–7am",
   },
 };
 
-// Which slots are peak for TOU (7am=slot14 to 11pm=slot46)
 function isTouPeak(slotIndex) {
   return slotIndex >= 14 && slotIndex <= 45;
 }
 
-// Avg SG household half-hourly profile (~400 kWh/month, typical 4-room HDB)
 const sgAvgData = [
   0.03, 0.02, 0.02, 0.02, 0.02, 0.03, 0.08, 0.16, 0.20, 0.17, 0.14, 0.13,
   0.14, 0.13, 0.12, 0.12, 0.13, 0.14, 0.17, 0.20, 0.32, 0.48, 0.58, 0.62,
@@ -74,15 +71,78 @@ function getBarColor(i) {
   return COLORS.normal;
 }
 
+const monthlyKwhProgress = [
+  2.1,3.4,1.8,4.2,2.9,3.7,5.1,2.4,3.1,1.6,4.5,3.2,2.8,4.9,
+  1.9,3.6,4.1,2.3,5.2,3.0,2.6,4.4,1.7,3.8,4.6,2.2,3.3,4.0,
+].map((val, i) => ({ day: `${i+1}`, val }));
+const monthlyDollarProgress = monthlyKwhProgress.map(d => ({ day: d.day, val: +(d.val * 0.3256).toFixed(2) }));
+
 const weeklyProgress = [
-  { day: "Mon", saved: 0.8, shifted: 0.4 },
-  { day: "Tue", saved: 1.1, shifted: 0.7 },
-  { day: "Wed", saved: 0.6, shifted: 0.3 },
-  { day: "Thu", saved: 1.4, shifted: 0.9 },
-  { day: "Fri", saved: 1.2, shifted: 0.8 },
-  { day: "Sat", saved: 0.9, shifted: 0.5 },
-  { day: "Sun", saved: 1.6, shifted: 1.1 },
+  { day: "Mon", kwhSaved: 2.4, dollarSaved: 0.78 },
+  { day: "Tue", kwhSaved: 3.1, dollarSaved: 1.01 },
+  { day: "Wed", kwhSaved: 1.8, dollarSaved: 0.59 },
+  { day: "Thu", kwhSaved: 4.2, dollarSaved: 1.37 },
+  { day: "Fri", kwhSaved: 3.6, dollarSaved: 1.17 },
+  { day: "Sat", kwhSaved: 2.9, dollarSaved: 0.94 },
+  { day: "Sun", kwhSaved: 5.1, dollarSaved: 1.66 },
 ];
+
+const MONTHLY_HISTORY = [
+  {
+    month: "Feb 2025", totalKwh: 312.4, peakKwh: 98.2, offPeakKwh: 214.2, cost: 101.72,
+    vsAvg: -8, saved: 9.80,
+    daily: [10.5, 10.5, 10.6, 11.7, 10.6, 9.9, 12.4,
+      10.4, 10.4, 10.9, 11.0, 12.3, 12.8, 12.1,
+      9.7, 9.4, 11.1, 12.5, 10.8, 11.8, 12.7,
+      8.8, 10.3, 11.4, 11.9, 10.4, 12.5, 13.0],
+  },
+  {
+    month: "Jan 2025", totalKwh: 328.1, peakKwh: 105.4, offPeakKwh: 222.7, cost: 106.84,
+    vsAvg: -4, saved: 7.20,
+    daily: [11.4, 9.0, 11.1, 8.3, 6.9, 10.8, 10.4,
+      11.5, 11.2, 8.8, 11.4, 9.1, 11.4, 11.2,
+      10.5, 11.4, 11.2, 10.8, 11.2, 12.1, 10.7,
+      9.5, 9.8, 11.0, 10.0, 13.3, 10.5, 10.1,
+      11.3, 12.2, 10.0],
+  },
+  {
+    month: "Dec 2024", totalKwh: 356.8, peakKwh: 118.6, offPeakKwh: 238.2, cost: 116.14,
+    vsAvg: +4, saved: 2.10,
+    daily: [12.3, 13.1, 11.0, 9.2, 10.4, 13.7, 10.4,
+      11.2, 11.5, 10.7, 12.2, 12.0, 15.6, 13.3,
+      10.3, 10.4, 10.0, 12.5, 10.4, 12.3, 13.5,
+      10.2, 10.8, 8.6, 9.7, 10.4, 13.0, 14.1,
+      11.1, 11.5, 11.4],
+  },
+  {
+    month: "Nov 2024", totalKwh: 298.5, peakKwh: 92.1, offPeakKwh: 206.4, cost: 97.17,
+    vsAvg: -12, saved: 13.40,
+    daily: [10.6, 10.4, 9.8, 8.2, 10.4, 10.9, 11.9,
+      9.4, 11.7, 9.0, 11.3, 9.6, 9.8, 9.2,
+      9.3, 11.1, 10.3, 10.2, 6.6, 11.3, 11.1,
+      8.8, 8.7, 9.4, 11.4, 8.2, 9.9, 12.1,
+      8.9, 9.0],
+  },
+  {
+    month: "Oct 2024", totalKwh: 341.2, peakKwh: 110.8, offPeakKwh: 230.4, cost: 111.05,
+    vsAvg: 0, saved: 4.50,
+    daily: [10.6, 8.8, 10.8, 8.9, 11.5, 11.6, 14.6,
+      10.8, 12.2, 8.8, 10.3, 10.9, 13.9, 9.5,
+      11.7, 11.3, 12.4, 11.4, 10.5, 11.0, 10.0,
+      10.7, 10.2, 13.0, 9.7, 10.9, 9.6, 11.2,
+      10.8, 11.5, 12.1],
+  },
+  {
+    month: "Sep 2024", totalKwh: 319.6, peakKwh: 100.3, offPeakKwh: 219.3, cost: 104.06,
+    vsAvg: -6, saved: 8.30,
+    daily: [10.0, 8.6, 10.6, 10.7, 10.7, 10.3, 12.6,
+      10.1, 10.9, 11.7, 10.8, 10.4, 13.9, 11.5,
+      9.7, 10.2, 11.8, 10.2, 10.7, 12.6, 10.5,
+      7.9, 10.4, 10.3, 9.3, 11.1, 11.9, 9.9,
+      10.7, 9.6],
+  },
+];
+
 
 const INITIAL_GOALS = [
   { id: 1, text: "Shift laundry out of peak hours", points: 50, done: true, streak: 5 },
@@ -99,76 +159,17 @@ const leaderboard = [
   { block: "Blk 507", saved: 148, rank: 5, trend: "down" },
 ];
 
-// ─── Forest Plot Component ────────────────────────────────────────────────────
-//
-// REAL DATA SOURCES (all publicly available, SP can cite these):
-//
-// 1. EMA Grid Emission Factor 2024: 0.402 kgCO₂/kWh
-//    Source: EMA Singapore Energy Statistics 2024, Chapter 2
-//    https://www.ema.gov.sg/resources/singapore-energy-statistics/chapter2
-//
-// 2. Avg SG household: ~600 kWh/month (7,200 kWh/yr)
-//    Source: EMA / Sunollo citing EMA data
-//    Baseline comparison: user's 42 kWh saved vs 600 kWh avg monthly = 7% reduction
-//
-// 3. Singapore GreenPlan 2030 – OneMillionTrees target:
-//    1,000,000 trees → sequester 78,000 tonnes CO₂ total
-//    = 0.078 kgCO₂ sequestered per tree per year
-//    Source: Singapore Green Plan 2030, greenplan.gov.sg/vision
-//
-// 4. Progress as of early 2025: ~700,000 trees planted (NParks)
-//    Source: NParks press release, nparks.gov.sg
-//
-// MATH:
-//   User saved 42 kWh this month
-//   CO₂ offset = 42 × 0.402 = 16.88 kgCO₂
-//   Trees equivalent = 16.88 / (0.078 / 12) = 16.88 / 0.0065 = ~2,597 tree-months
-//   But we show it as equivalent tree-years of CO₂ absorbed:
-//   16.88 kg / 0.078 kgCO₂/tree/yr × (1/12 months) → annual rate = 16.88 × 12 / 0.078 = 2,600 tree-years/yr
-//   More intuitively: 16.88 kg ÷ 0.078 = 216 trees absorb this in 1 year
-//   OR: 1 tree absorbs this in 216 years — not intuitive
-//   BETTER FRAMING: "equivalent to planting N trees that absorb CO₂ for a month"
-//   16.88 kgCO₂ / (0.078/12) kgCO₂/tree/month = 16.88 / 0.0065 ≈ 2,597 tree-months
-//   = equivalent of 2,597 trees absorbing CO₂ for 1 month — too big a number
-//
-//   SIMPLEST honest framing: your monthly saving offsets the same CO₂ that
-//   1 tree sequesters over (16.88 / 0.0065) months... still complex.
-//
-//   FINAL APPROACH used in UI:
-//   Plot = district share of 1M tree goal = 1,000,000 / 28 districts = ~35,714 trees per district
-//   Grid shows 200 cells = each cell = 35,714/200 = ~179 trees
-//   Your contribution (42 kWh → 16.88 kgCO₂) fills:
-//     cells_you = 42 × 0.402 / (78000 / 1000000 × 35714 / 200) ... 
-//   
-//   SIMPLER: just show scaled cells honestly labelled.
-//   District target = 35,714 trees. Grid = 200 cells. Each cell = ~179 trees.
-//   You (1 month): 16.88 kgCO₂ / (78000/1000000 kgCO₂/tree/yr × 1/12) = ~31 tree-months → 0.17 cells
-//   You (1 year): 16.88×12 / (78000/1000000) = 2,597 tree-years → 1 cell (show as 1)
-//   You (year, honest): saves 42×12=504 kWh/yr → 202.6 kgCO₂/yr → 202.6/0.078 = 2,598 tree-equivalent → ~14.5 cells
-//   District (28,000 HH × 42 kWh saved = 1,176,000 kWh → 472,752 kgCO₂ → 472752/0.078 = 6,061,564 tree-equiv/yr)
-//   That far exceeds the goal — scale down: show per-month district contribution
-//   District 1 month: 28,000 × 16.88 = 472,640 kgCO₂ → /0.078 × (1/12 yr) = 505,000 tree-months
-//   As cells: 505,000 / 179 ≈ 2,820 cells — way more than 200. Cap at 200 (full plot).
-//
-//   FINAL NUMBERS USED:
-//   Grid = 200 cells. Each cell = ~179 trees (of the 35,714 district target).
-//   you_month  = 1 cell  (honest: 0.17, rounded up to show something — labelled as ~31 tree-equivalent)
-//   you_year   = 14 cells (honest: 14.5 → ~2,500 tree-equivalent offset)  
-//   district   = 200 cells (full plot — district collective fills the whole thing in 1 month)
-//   Baseline comparison: avg SG household saves 0 kWh extra → 0 cells
-
 const COLS = 20;
 const ROWS = 10;
-const TOTAL_CELLS = COLS * ROWS; // 200 cells, each = ~179 trees of district 35,714 target
+const TOTAL_CELLS = COLS * ROWS;
 
-// Cells filled per view (calculated from real data above)
 const VIEW_DATA = {
   you_month: {
     cells: 1,
-    treesEquiv: 31,         // tree-month equivalents
-    co2kg: 16.9,            // 42 kWh × 0.402
+    treesEquiv: 31,
+    co2kg: 16.9,
     label: "You · This Month",
-    color: "#22c55e",       // bright green
+    color: "#22c55e",
     desc: "42 kWh saved → 16.9 kg CO₂ offset",
     sub: "= 31 tree-months of carbon absorption",
     baseline: "Avg SG household this month: 0 kg offset (no action taken)",
@@ -176,34 +177,32 @@ const VIEW_DATA = {
   you_year: {
     cells: 14,
     treesEquiv: 2597,
-    co2kg: 202.6,           // 504 kWh × 0.402
+    co2kg: 202.6,
     label: "You · Full Year",
-    color: "#16a34a",       // medium green
+    color: "#16a34a",
     desc: "504 kWh saved/yr → 202.6 kg CO₂ offset",
     sub: "= 2,597 tree-equivalent absorption per year",
     baseline: "SG avg household uses 7,200 kWh/yr (no savings assumed)",
   },
   district: {
-    cells: 200,             // fills entire plot
+    cells: 200,
     treesEquiv: 505000,
     co2kg: 472640,
     label: "Toa Payoh · 1 Month",
-    color: "#15803d",       // dark green
+    color: "#15803d",
     desc: "28,000 households × 42 kWh = 1.18M kWh saved",
     sub: "→ fills the entire district plot in just 1 month",
     baseline: "District baseline (no action): 28,000 × 600 kWh = 16.8M kWh/month consumed",
   },
 };
 
-// SVG Tree components — 3 realistic variants by contribution level
 function TreeSVG({ variant, size }) {
   if (variant === "bare") {
-    // Bare plot — cracked dry soil mound, no tree
+
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block" }}>
         <ellipse cx="12" cy="20" rx="9" ry="3.5" fill="#a16207" />
         <ellipse cx="12" cy="19" rx="7" ry="2.5" fill="#92400e" />
-        {/* Crack lines */}
         <line x1="10" y1="18" x2="9" y2="20" stroke="#78350f" strokeWidth="0.5" opacity="0.7"/>
         <line x1="13" y1="17" x2="15" y2="20" stroke="#78350f" strokeWidth="0.5" opacity="0.7"/>
         <line x1="11" y1="18" x2="12" y2="21" stroke="#78350f" strokeWidth="0.4" opacity="0.5"/>
@@ -211,31 +210,23 @@ function TreeSVG({ variant, size }) {
     );
   }
   if (variant === "you") {
-    // Bright vivid tropical tree — tall layered canopy, glowing
+
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block" }}>
-        {/* Shadow */}
         <ellipse cx="12" cy="22" rx="5" ry="1.5" fill="#000" opacity="0.25" />
-        {/* Trunk */}
         <rect x="10.5" y="14" width="3" height="7" rx="1.2" fill="#7c4a1a" />
         <rect x="11" y="14" width="1.5" height="7" rx="0.8" fill="#a0621e" opacity="0.5" />
-        {/* Root flare */}
         <ellipse cx="12" cy="21" rx="4.5" ry="1.2" fill="#5a3510" opacity="0.6"/>
-        {/* Bottom canopy layer */}
         <ellipse cx="12" cy="14" rx="7" ry="3.5" fill="#15803d" />
-        {/* Mid canopy */}
         <ellipse cx="12" cy="10.5" rx="5.5" ry="3" fill="#16a34a" />
-        {/* Top canopy */}
         <ellipse cx="12" cy="7.5" rx="3.5" ry="2.5" fill="#22c55e" />
-        {/* Highlight */}
         <ellipse cx="10.5" cy="6.5" rx="1.5" ry="1" fill="#86efac" opacity="0.5" />
-        {/* Glow dot */}
         <circle cx="12" cy="5" r="1.2" fill="#bbf7d0" opacity="0.7" />
       </svg>
     );
   }
   if (variant === "year") {
-    // Mature medium tree
+
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block" }}>
         <ellipse cx="12" cy="22" rx="4.5" ry="1.2" fill="#000" opacity="0.2" />
@@ -249,7 +240,7 @@ function TreeSVG({ variant, size }) {
     );
   }
   if (variant === "district") {
-    // Dense dark forest tree — part of a collective canopy
+
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block" }}>
         <ellipse cx="12" cy="22" rx="4" ry="1.2" fill="#000" opacity="0.18" />
@@ -278,7 +269,6 @@ function ForestPlot() {
   const data = VIEW_DATA[view];
   const filledCells = animated ? Math.min(data.cells, TOTAL_CELLS) : 0;
 
-  // Assign tree type per cell
   const getVariant = (idx) => {
     if (idx >= filledCells) return "bare";
     if (view === "you_month") return "you";
@@ -286,7 +276,6 @@ function ForestPlot() {
     return "district";
   };
 
-  // Stagger delay — faster for district (all fill at once)
   const getDelay = (idx) => {
     if (view === "district") return `${Math.min(idx * 4, 400)}ms`;
     return `${Math.min(idx * 40, 1200)}ms`;
@@ -294,13 +283,11 @@ function ForestPlot() {
 
   const pctOfGoal = ((data.cells / TOTAL_CELLS) * 100).toFixed(0);
 
-  // NParks real progress: 700,000 of 1,000,000 = 70%
   const nationalPct = 70;
 
   return (
     <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: "1px solid #86efac", background: "#f0fdf4" }}>
 
-      {/* Header */}
       <div style={{ padding: "12px 14px 10px", background: "linear-gradient(135deg, #bbf7d0, #86efac)", borderBottom: "1px solid #86efac" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
@@ -318,7 +305,6 @@ function ForestPlot() {
           </div>
         </div>
 
-        {/* National progress bar */}
         <div style={{ marginTop: 8 }}>
           <div style={{ background: "#d1fae5", borderRadius: 99, height: 4, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${nationalPct}%`, background: "linear-gradient(90deg, #15803d, #22c55e)", borderRadius: 99, boxShadow: "0 0 6px #22c55e66" }} />
@@ -335,7 +321,6 @@ function ForestPlot() {
         </div>
       </div>
 
-      {/* View toggle */}
       <div style={{ display: "flex", gap: 3, padding: "10px 10px 0" }}>
         {[
           { key: "you_month", label: "You · Month", color: "#22c55e" },
@@ -354,7 +339,6 @@ function ForestPlot() {
         ))}
       </div>
 
-      {/* THE FOREST PLOT */}
       <div style={{ padding: "8px 8px 4px" }}>
         <div style={{
           background: "linear-gradient(180deg, #d1fae5 0%, #bbf7d0 40%, #86efac 100%)",
@@ -364,7 +348,6 @@ function ForestPlot() {
           position: "relative",
           overflow: "hidden",
         }}>
-          {/* Misty sky atmosphere */}
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 16, background: "linear-gradient(180deg, #bbf7d088 0%, transparent 100%)", zIndex: 1, pointerEvents: "none" }} />
 
           <div style={{
@@ -389,12 +372,10 @@ function ForestPlot() {
             })}
           </div>
 
-          {/* Ground */}
           <div style={{ height: 10, background: "linear-gradient(180deg, #86efac 0%, #4ade80 100%)", marginTop: 1 }} />
         </div>
       </div>
 
-      {/* Legend */}
       <div style={{ display: "flex", gap: 10, padding: "6px 12px 4px", flexWrap: "wrap" }}>
         {[
           ...(view === "you_month" ? [{ v: "you", label: "Your trees (this month)", c: "#22c55e" }] : []),
@@ -412,7 +393,6 @@ function ForestPlot() {
         ))}
       </div>
 
-      {/* Stats card */}
       <div style={{ margin: "4px 8px 8px", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10, padding: "12px 12px 10px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
           <div style={{ flex: 1 }}>
@@ -429,7 +409,6 @@ function ForestPlot() {
           </div>
         </div>
 
-        {/* Comparison vs baseline */}
         <div style={{ background: "#f0fdf4", borderRadius: 8, padding: "8px 10px", borderLeft: "3px solid #facc15" }}>
           <div style={{ fontSize: 9, color: "#facc15", fontWeight: 700, marginBottom: 3, textTransform: "uppercase", letterSpacing: 1 }}>
             vs Baseline · EMA 2024
@@ -442,7 +421,6 @@ function ForestPlot() {
           </div>
         </div>
 
-        {/* Mini fill bar */}
         <div style={{ marginTop: 8, background: "#d1fae5", borderRadius: 99, height: 5, overflow: "hidden" }}>
           <div style={{
             height: "100%",
@@ -459,25 +437,15 @@ function ForestPlot() {
         </div>
       </div>
 
-      {/* Data source footnote */}
-      <div style={{ padding: "0 12px 10px", borderTop: "1px solid #86efac" }}>
-        <div style={{ fontSize: 8.5, color: COLORS.textMuted, lineHeight: 1.6, marginTop: 8 }}>
-          <span style={{ color: COLORS.green, fontWeight: 700 }}>Data sources: </span>
-          EMA Grid Emission Factor 0.402 kgCO₂/kWh (Singapore Energy Statistics 2024) ·
-          NParks OneMillionTrees = 78,000 tCO₂ sequestered (Green Plan 2030) ·
-          Avg household 600 kWh/month (EMA) ·
-          Toa Payoh: ~28,000 households (SingStat)
-        </div>
-      </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY ?? "";
 
 export default function App() {
   const [tab, setTab] = useState("usage");
-  const [pricingModel, setPricingModel] = useState("flat"); // "flat" | "tou"
+  const [pricingModel, setPricingModel] = useState("flat");
   const [showAI, setShowAI] = useState(false);
   const [aiText, setAiText] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -493,7 +461,7 @@ export default function App() {
   const [mysteryDrop, setMysteryDrop] = useState(null);
   const [gridStrainClaimed, setGridStrainClaimed] = useState(false);
   const [gridStrainVisible, setGridStrainVisible] = useState(true);
-  const [gridStrainDay, setGridStrainDay] = useState(7); // 1–7, day 7 = can claim
+  const [gridStrainDay, setGridStrainDay] = useState(7);
   const [totalSaved, setTotalSaved] = useState(12.40);
   const [streak, setStreak] = useState(5);
   const [streakBroken, setStreakBroken] = useState(false);
@@ -501,7 +469,9 @@ export default function App() {
   const [reminderSet, setReminderSet] = useState(false);
   const [goals, setGoals] = useState(INITIAL_GOALS);
   const [impactPeriod, setImpactPeriod] = useState("month");
-  const [hoveredBar, setHoveredBar] = useState(null); // { index, val }
+  const [hoveredBar, setHoveredBar] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(null);
 
   const toggleGoal = (id) => {
     setGoals(prev => prev.map(g => g.id === id ? { ...g, done: !g.done } : g));
@@ -525,7 +495,7 @@ export default function App() {
       }).join(", ");
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${process.env.REACT_APP_GOOGLE_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -536,9 +506,10 @@ export default function App() {
         }
       );
       const data = await res.json();
-      if (res.status === 429) throw new Error("rate_limit");
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Unable to generate analysis.";
-      setAiLoading(false);
+      if (!res.ok) {
+        console.error("Usage Insights API response:", res.status, data);
+        throw new Error("api_error");
+      }
       let i = 0;
       const interval = setInterval(() => {
         setAiText(text.slice(0, i));
@@ -546,6 +517,7 @@ export default function App() {
         if (i > text.length) clearInterval(interval);
       }, 18);
     } catch (e) {
+      console.error("Usage Insights API error:", e);
       setAiLoading(false);
       const fallback = "Your overnight baseline of ~0.02 kWh suggests a refrigerator and router were left running — both normal, but check for other idle devices. The sharp 7–9pm spike to 1.30 kWh points to AC and cooking appliances running simultaneously; staggering these by even 30 minutes would cut your peak reading significantly. Your AC is likely your single biggest consumer — raising the setpoint from 23°C to 26°C alone could save 0.3–0.5 kWh per evening. Try pre-cooling before 6pm and turning the water heater off outside shower times to reduce both overall usage and peak load.";
       let i = 0;
@@ -561,7 +533,7 @@ export default function App() {
     setHabitCoachLoading(true);
     try {
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${process.env.REACT_APP_GOOGLE_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -572,11 +544,13 @@ export default function App() {
         }
       );
       const data = await res.json();
-      if (res.status === 429) throw new Error("rate_limit");
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Keep going — you're doing great!";
-      setHabitCoachText(text);
+      if (!res.ok) {
+        console.error("Habit Coach API response:", res.status, data);
+        throw new Error("api_error");
+      }
       setHabitCoachLoaded(true);
     } catch (e) {
+      console.error("Habit Coach API error:", e);
       setHabitCoachText(`Amazing — ${streak} days in a row! You've cut 0.5 kWh of overall usage and shifted 0.8 kWh out of peak daily — saving ~$0.25/day. Hold 2 more days to unlock your 2× streak multiplier.`);
       setHabitCoachLoaded(true);
     }
@@ -595,11 +569,12 @@ export default function App() {
 
   const loadAiTasks = async () => {
     setAiTasksLoading(true);
+    setAiTasks([]);
     const completedGoals = goals.filter(g => g.done).map(g => g.text).join(", ");
     const pendingGoals = goals.filter(g => !g.done).map(g => g.text).join(", ");
     try {
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${process.env.REACT_APP_GOOGLE_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -610,11 +585,17 @@ export default function App() {
         }
       );
       const data = await res.json();
-      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+      if (!res.ok) {
+        console.error("Suggested Tasks API response:", res.status, data);
+        throw new Error("api_error");
+      }
+      if (!raw) throw new Error("empty_response");
       const clean = raw.replace(/```json|```/g, "").trim();
       const parsed = JSON.parse(clean);
+      if (!Array.isArray(parsed) || parsed.length === 0) throw new Error("bad_data");
       setAiTasks(parsed);
     } catch (e) {
+      console.error("Suggested Tasks API error:", e);
       const fallbackPool = [
         { task: "Run washing machine after 11pm (off-peak rate $0.189/kWh)", points: 30, kwh: "0.5 kWh", type: "shift" },
         { task: "Pre-cool flat to 25°C before 7pm, raise to 27°C at peak", points: 25, kwh: "0.4 kWh", type: "shift" },
@@ -662,7 +643,6 @@ export default function App() {
     { id: "rewards", label: "Rewards" },
   ];
 
-  // Derived points from gridStrainDay (streak) for rewards tab
   const currentStreak = streakBroken ? 0 : gridStrainDay;
   const streakMultiplier = currentStreak >= 7 ? 2.0 : currentStreak >= 5 ? 1.5 : currentStreak >= 3 ? 1.2 : 1.0;
   const todayTaskPts = aiTasks.filter(t => aiTasksDone[t.task]).reduce((s, t) => s + t.points, 0);
@@ -743,11 +723,13 @@ export default function App() {
   return (
     <div style={{
       minHeight: "100vh",
+      width: "100vw",
+      boxSizing: "border-box",
       background: "#e2e8f0",
       display: "flex",
       justifyContent: "center",
       alignItems: "flex-start",
-      padding: "24px 0",
+      padding: "24px 16px",
     }}>
     <div style={{
       fontFamily: "'Inter', 'Segoe UI', sans-serif",
@@ -761,7 +743,6 @@ export default function App() {
       position: "relative",
       overflowX: "hidden",
     }}>
-      {/* Header */}
       <div style={{
         padding: "20px 20px 0",
         background: "#ffffff",
@@ -793,7 +774,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Streak Badge */}
         <div style={{ display: "flex", gap: 8, marginBottom: 16, marginTop: 10 }}>
           <div style={{
             background: "#fbbf2422",
@@ -819,7 +799,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Tab Nav */}
         <div style={{
           display: "flex",
           gap: 2,
@@ -836,12 +815,12 @@ export default function App() {
                 flex: 1,
                 padding: "8px 4px",
                 borderRadius: 9,
-                border: "none",
+                border: `1px solid ${tab === t.id ? COLORS.accent + "55" : COLORS.cardBorder}`,
                 cursor: "pointer",
                 fontSize: 10,
                 fontWeight: tab === t.id ? 700 : 500,
-                background: tab === t.id ? COLORS.accent : "transparent",
-                color: tab === t.id ? "#0f172a" : COLORS.textMuted,
+                background: tab === t.id ? "#d1faf5" : "#f8fafc",
+                color: tab === t.id ? COLORS.accent : COLORS.textMuted,
                 transition: "all 0.2s",
               }}
             >
@@ -853,12 +832,187 @@ export default function App() {
 
       <div style={{ padding: "16px 16px 100px" }}>
 
-        {/* ===== USAGE TAB ===== */}
         {tab === "usage" && (
           <div>
-            <div style={{ fontSize: 13, color: COLORS.textSub, marginBottom: 12 }}>Half-hourly usage · Today</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ fontSize: 13, color: COLORS.textSub }}>{showHistory ? "Usage History" : "Half-hourly usage · Today"}</div>
+              <button onClick={() => { setShowHistory(h => !h); setSelectedMonth(null); }} style={{
+                fontSize: 11, fontWeight: 600, color: showHistory ? COLORS.textMuted : COLORS.accent,
+                background: showHistory ? "#f1f5f9" : COLORS.accentSoft,
+                border: `1px solid ${showHistory ? COLORS.cardBorder : COLORS.accent + "55"}`,
+                borderRadius: 20, padding: "4px 12px", cursor: "pointer",
+              }}>
+                {showHistory ? "← Today" : "View History"}
+              </button>
+            </div>
 
-            {/* Legend */}
+            {showHistory ? (
+              <div>
+                {selectedMonth === null ? (
+                  <div>
+                    {(() => {
+                      const allMonths = [
+                        ...MONTHLY_HISTORY.slice().reverse(),
+                        { month: "Mar 2025", totalKwh: +(halfHourlyData.reduce((a,b)=>a+b,0) * 30).toFixed(1), vsAvg: -5, isToday: true },
+                      ];
+                      const maxKwh = Math.max(...allMonths.map(x => x.totalKwh));
+                      const minKwh = Math.min(...allMonths.map(x => x.totalKwh));
+                      const chartH = 120;
+                      const yTicks = [0, 100, 200, 300, 400].filter(v => v <= Math.ceil(maxKwh / 100) * 100);
+                      const yMax = Math.ceil(maxKwh / 50) * 50;
+                      return (
+                        <div style={{ display: "flex", gap: 0, marginBottom: 8 }}>
+                          <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-end", paddingRight: 4, height: chartH, flexShrink: 0, paddingBottom: 20 }}>
+                            {[yMax, yMax * 0.75, yMax * 0.5, yMax * 0.25, 0].map((v, i) => (
+                              <div key={i} style={{ fontSize: 8, color: COLORS.textMuted, lineHeight: 1 }}>{Math.round(v)}</div>
+                            ))}
+                          </div>
+                          <div style={{ flex: 1, position: "relative" }}>
+                            {[0, 0.25, 0.5, 0.75, 1].map(pct => (
+                              <div key={pct} style={{
+                                position: "absolute", left: 0, right: 0,
+                                bottom: `${20 + pct * (chartH - 20)}px`,
+                                height: 1, background: COLORS.cardBorder, opacity: 0.6,
+                              }} />
+                            ))}
+                            <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: chartH, paddingBottom: 20 }}>
+                              {allMonths.map((m, i) => {
+                                const barH = (m.totalKwh / yMax) * (chartH - 20);
+                                const isGood = m.vsAvg <= 0;
+                                const color = m.isToday ? COLORS.normal : isGood ? COLORS.green : COLORS.spike;
+                                return (
+                                  <div key={i} onClick={() => !m.isToday && setSelectedMonth(m)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", cursor: m.isToday ? "default" : "pointer", height: "100%", justifyContent: "flex-end", gap: 2 }}>
+                                    <div style={{ fontSize: 7, color, fontWeight: 700, lineHeight: 1 }}>
+                                      {m.isToday ? "~now" : `${m.vsAvg > 0 ? "+" : ""}${m.vsAvg}%`}
+                                    </div>
+                                    <div style={{
+                                      width: "100%", height: barH,
+                                      background: color, borderRadius: "3px 3px 0 0", opacity: 0.85,
+                                      transition: "opacity 0.2s",
+                                    }}
+                                      onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.title = `${m.totalKwh} kWh`; }}
+                                      onMouseLeave={e => e.currentTarget.style.opacity = 0.85}
+                                    />
+                                    <div style={{ fontSize: 7, color: COLORS.textMuted, textAlign: "center", lineHeight: 1.3 }}>
+                                      {m.month.split(" ")[0]}<br />{m.month.split(" ")[1]}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    <div style={{ fontSize: 8, color: COLORS.textMuted, marginLeft: 28, marginBottom: 4 }}>kWh / month</div>
+                    <div style={{ fontSize: 10, color: COLORS.textMuted, marginBottom: 14, textAlign: "center" }}>Tap a bar to see that month's half-hourly breakdown</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {MONTHLY_HISTORY.map((m, i) => (
+                        <div key={i} onClick={() => setSelectedMonth(m)} style={{
+                          background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`,
+                          borderRadius: 12, padding: "12px 14px", cursor: "pointer",
+                          display: "flex", justifyContent: "space-between", alignItems: "center",
+                          borderLeft: `3px solid ${m.vsAvg <= 0 ? COLORS.green : COLORS.spike}`,
+                        }}>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text }}>{m.month}</div>
+                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 2 }}>{m.totalKwh} kWh · ${m.cost}</div>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: m.vsAvg <= 0 ? COLORS.green : COLORS.spike }}>
+                              {m.vsAvg > 0 ? "+" : ""}{m.vsAvg}% vs avg
+                            </div>
+                            <div style={{ fontSize: 11, color: COLORS.green, marginTop: 2 }}>saved ${m.saved}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <button onClick={() => setSelectedMonth(null)} style={{
+                      fontSize: 11, color: COLORS.textMuted, background: "none", border: "none",
+                      cursor: "pointer", padding: "0 0 12px 0", fontWeight: 600,
+                    }}>← Back to history</button>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: COLORS.text }}>{selectedMonth.month}</div>
+                        <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 2 }}>{selectedMonth.totalKwh} kWh total · ${selectedMonth.cost}</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: selectedMonth.vsAvg <= 0 ? COLORS.green : COLORS.spike }}>
+                          {selectedMonth.vsAvg > 0 ? "+" : ""}{selectedMonth.vsAvg}% vs avg
+                        </div>
+                        <div style={{ fontSize: 11, color: COLORS.green }}>saved ${selectedMonth.saved}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+                      <div style={{ flex: 1, background: COLORS.peakSoft, border: `1px solid ${COLORS.peak}44`, borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                        <div style={{ fontSize: 9, color: COLORS.textMuted }}>Peak kWh</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: COLORS.peak }}>{selectedMonth.peakKwh}</div>
+                      </div>
+                      <div style={{ flex: 1, background: COLORS.normalSoft, border: `1px solid ${COLORS.normal}44`, borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                        <div style={{ fontSize: 9, color: COLORS.textMuted }}>Off-peak kWh</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: COLORS.normal }}>{selectedMonth.offPeakKwh}</div>
+                      </div>
+                      <div style={{ flex: 1, background: COLORS.greenSoft, border: `1px solid ${COLORS.green}44`, borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                        <div style={{ fontSize: 9, color: COLORS.textMuted }}>Saved</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: COLORS.green }}>${selectedMonth.saved}</div>
+                      </div>
+                    </div>
+                    {(() => {
+                      const data = selectedMonth.daily;
+                      const max = Math.ceil(Math.max(...data) / 2) * 2;
+                      const yMax = max;
+                      return (
+                        <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 16, padding: "12px 10px 8px 4px", marginBottom: 12 }}>
+                          <div style={{ display: "flex", gap: 0 }}>
+                            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-end", paddingRight: 6, height: 130, flexShrink: 0, minWidth: 36 }}>
+                              {[yMax, yMax*0.75, yMax*0.5, yMax*0.25, 0].map((v, i) => (
+                                <div key={i} style={{ fontSize: 8, color: COLORS.textMuted, whiteSpace: "nowrap" }}>{v === 0 ? "0" : v.toFixed(1)}</div>
+                              ))}
+                            </div>
+                            <div style={{ flex: 1, position: "relative", height: 130 }}>
+                              {[0, 0.25, 0.5, 0.75, 1].map(pct => (
+                                <div key={pct} style={{ position: "absolute", left: 0, right: 0, bottom: `${pct * 120}px`, height: 1, background: COLORS.cardBorder, opacity: 0.5 }} />
+                              ))}
+                              <div style={{ display: "flex", alignItems: "flex-end", gap: 1.5, height: "100%", paddingBottom: 10 }}>
+                                {data.map((val, i) => {
+                                  const h = (val / yMax) * 120;
+                                  const isWeekend = i % 7 >= 5;
+                                  const color = isWeekend ? COLORS.peak : COLORS.normal;
+                                  return (
+                                    <div key={i} style={{ flex: 1, height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end" }}
+                                      title={`Day ${i+1}: ${val} kWh`}>
+                                      <div style={{ width: "100%", height: h, background: color, borderRadius: "2px 2px 0 0", opacity: 0.8 }} />
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ marginTop: 2, paddingLeft: 42, display: "flex", justifyContent: "space-between" }}>
+                            <div style={{ fontSize: 8, color: COLORS.textMuted }}>Day 1</div>
+                            <div style={{ fontSize: 8, color: COLORS.textMuted }}>Day {Math.round(data.length / 2)}</div>
+                            <div style={{ fontSize: 8, color: COLORS.textMuted }}>Day {data.length}</div>
+                          </div>
+                          <div style={{ marginTop: 6, paddingLeft: 42, display: "flex", gap: 10 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: COLORS.textMuted }}>
+                              <div style={{ width: 8, height: 8, borderRadius: 2, background: COLORS.normal }} /> Weekday
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: COLORS.textMuted }}>
+                              <div style={{ width: 8, height: 8, borderRadius: 2, background: COLORS.peak }} /> Weekend
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 8, color: COLORS.textMuted, marginTop: 4, paddingLeft: 42 }}>kWh / day</div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+            ) : (
+            <>
             <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
               {[
                 { color: COLORS.normal, label: "Normal", type: "bar" },
@@ -877,7 +1031,6 @@ export default function App() {
               ))}
             </div>
 
-            {/* Bar Chart */}
             <div style={{
               background: COLORS.card,
               border: `1px solid ${COLORS.cardBorder}`,
@@ -885,10 +1038,8 @@ export default function App() {
               padding: "12px 10px 8px 4px",
               marginBottom: 12,
             }}>
-              {/* Chart area: Y-axis + bars */}
               <div style={{ display: "flex", gap: 0 }}>
 
-                {/* Y-axis labels */}
                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-end", paddingRight: 4, height: 140, flexShrink: 0 }}>
                   {[maxBar, maxBar * 0.75, maxBar * 0.5, maxBar * 0.25, 0].map((v, i) => (
                     <div key={i} style={{ fontSize: 8, color: COLORS.textMuted, lineHeight: 1 }}>
@@ -897,9 +1048,7 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* Bars + overlay */}
                 <div style={{ flex: 1, position: "relative" }}>
-                  {/* Y-axis grid lines */}
                   {[0, 25, 50, 75, 100].map(pct => (
                     <div key={pct} style={{
                       position: "absolute",
@@ -913,16 +1062,17 @@ export default function App() {
                   ))}
 
                   <div style={{ position: "relative", height: 140 }}>
-                    {/* Bars */}
                     <div style={{ display: "flex", alignItems: "flex-end", gap: 1.5, height: "100%", position: "relative", zIndex: 1 }}>
                       {halfHourlyData.map((val, i) => {
                         const barH = Math.max((val / maxBar) * 130, val > 0 ? 3 : 0);
                         const color = getBarColor(i);
                         const isHovered = hoveredBar?.index === i;
                         return (
-                          <div key={i} style={{ flex: 1, height: "100%", display: "flex", alignItems: "flex-end", position: "relative" }}
+                          <div key={i} style={{ flex: 1, height: "100%", display: "flex", alignItems: "flex-end", position: "relative", cursor: "crosshair" }}
                             onMouseEnter={() => setHoveredBar({ index: i, val })}
                             onMouseLeave={() => setHoveredBar(null)}
+                            onTouchStart={() => setHoveredBar({ index: i, val })}
+                            onTouchEnd={() => setTimeout(() => setHoveredBar(null), 1200)}
                           >
                             {isHovered && (
                               <div style={{
@@ -953,14 +1103,13 @@ export default function App() {
                               transition: `height 0.6s cubic-bezier(0.34,1.56,0.64,1) ${i * 10}ms`,
                               boxShadow: SPIKE_INDICES.includes(i) ? `0 0 8px ${COLORS.spike}88` : "none",
                               opacity: isHovered ? 1 : 0.85,
-                              cursor: "crosshair",
+                              pointerEvents: "none",
                             }} />
                           </div>
                         );
                       })}
                     </div>
 
-                    {/* SG Average SVG line overlay */}
                     <svg
                       style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 2, pointerEvents: "none", overflow: "visible" }}
                       preserveAspectRatio="none"
@@ -986,7 +1135,6 @@ export default function App() {
                       ))}
                     </svg>
 
-                    {/* SG Avg label */}
                     <div style={{
                       position: "absolute",
                       top: 130 - (sgAvgData[24] / maxBar) * 130 - 18,
@@ -997,7 +1145,6 @@ export default function App() {
                     }}>SG avg HDB</div>
                   </div>
 
-                  {/* X-axis ticks — every 2 hours = every 4 slots */}
                   <div style={{ position: "relative", marginTop: 4, paddingTop: 4, borderTop: `1px solid ${COLORS.cardBorder}` }}>
                     <div style={{ display: "flex" }}>
                       {Array.from({ length: 13 }, (_, i) => {
@@ -1014,10 +1161,8 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Y-axis unit label */}
               <div style={{ fontSize: 8, color: COLORS.textMuted, marginTop: 2, marginLeft: 4 }}>kWh</div>
 
-              {/* Quick comparison stat */}
               <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
                 {(() => {
                   const yourTotal = halfHourlyData.reduce((a,b) => a+b, 0).toFixed(1);
@@ -1043,10 +1188,8 @@ export default function App() {
                 })()}
               </div>
 
-              {/* Data source footnote */}
             </div>
 
-            {/* Pricing Model Toggle */}
             <div style={{
               background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`,
               borderRadius: 14, padding: 14, marginBottom: 12,
@@ -1088,7 +1231,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Flat rate: peak demand shift tips */}
                   <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 0.8, textTransform: "uppercase" }}>Ways to Shift Peak Demand</div>
                   {[
                     { tip: "Run washing machine before 7am or after 10pm", saving: "~0.5 kWh shifted", color: COLORS.accent },
@@ -1132,12 +1274,11 @@ export default function App() {
                     const totalTou = peakCost + offCost;
                     const flatCost = halfHourlyData.reduce((a, b) => a + b, 0) * PRICING.flat.rate;
                     const saving = flatCost - totalTou;
-                    // Potential saving: if ALL peak kWh were shifted to off-peak
+
                     const potentialSaving = peakKwh * (PRICING.tou.peak - PRICING.tou.offPeak);
                     const savingPct = ((potentialSaving / totalTou) * 100).toFixed(0);
                     return (
                       <div>
-                        {/* Potential savings highlight */}
                         <div style={{
                           background: "linear-gradient(135deg, #e0f2fe, #dbeafe)",
                           border: `1.5px solid ${COLORS.green}55`,
@@ -1171,7 +1312,6 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* Actual breakdown */}
                         <div style={{ background: "#f1f5f9", border: `1px solid ${COLORS.cardBorder}`, borderRadius: 10, padding: 10 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                             <span style={{ fontSize: 11, color: COLORS.textMuted }}>Peak cost ({peakKwh.toFixed(2)} kWh)</span>
@@ -1197,10 +1337,9 @@ export default function App() {
               )}
             </div>
 
-            {/* AI Usage Explainer */}
             {(() => {
-              // ── Algorithmic detection ──────────────────────────────────────
-              const baseline = halfHourlyData.slice(0, 14).reduce((a, b) => a + b, 0) / 14; // overnight baseline (midnight–7am)
+
+              const baseline = halfHourlyData.slice(0, 14).reduce((a, b) => a + b, 0) / 14;
               const spikeThreshold = baseline * 3.5;
               const detectedSpikes = halfHourlyData.map((v, i) => ({ v, i })).filter(({ v, i }) => v > spikeThreshold && i >= 14);
               const peakWindowData = halfHourlyData.slice(PEAK_START, PEAK_END + 1);
@@ -1214,12 +1353,10 @@ export default function App() {
               const eveningAvg = (peakWindowData.reduce((a, b) => a + b, 0) / peakWindowData.length).toFixed(2);
               const ratio = (parseFloat(eveningAvg) / parseFloat(overnightAvg)).toFixed(0);
 
-              // Algorithmically generated summary text
               const algoSummary = `Your usage is low and stable overnight (12am–7am), averaging ${overnightAvg} kWh per slot. Usage begins rising around ${formatSlotTime(peakStartSlot > 0 ? peakStartSlot : 26)} and peaks between 7pm–9pm, reaching ${peakMax.toFixed(2)} kWh at ${formatSlotTime(peakMaxSlot)} — ${ratio}× your overnight baseline. ${detectedSpikes.length} unusual spike${detectedSpikes.length !== 1 ? "s" : ""} detected above ${spikeThreshold.toFixed(2)} kWh threshold${detectedSpikes.length > 0 ? ` at ${detectedSpikes.slice(0, 2).map(s => formatSlotTime(s.i)).join(", ")}` : ""}.`;
 
               return (
                 <div>
-                  {/* AI Summary Box */}
                   <div style={{
                     background: "#dbeafe", border: `1px solid ${COLORS.accent}44`,
                     borderRadius: 14, padding: 14, marginBottom: 12,
@@ -1227,7 +1364,7 @@ export default function App() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.accent, boxShadow: `0 0 6px ${COLORS.accent}` }} />
-                        <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.accent }}>AI Usage Explainer</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.accent }}>Usage Insights</span>
                       </div>
                       {!showAI && (
                         <button onClick={typeAI} style={{
@@ -1237,13 +1374,11 @@ export default function App() {
                       )}
                     </div>
 
-                    {/* Always-visible algorithmic summary */}
                     <div style={{ background: "#e0f2fe", borderRadius: 10, padding: 10, marginBottom: 10 }}>
                       <div style={{ fontSize: 10, color: COLORS.textMuted, fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>Pattern Detection</div>
                       <p style={{ fontSize: 12.5, color: COLORS.textSub, lineHeight: 1.7, margin: 0 }}>{algoSummary}</p>
                     </div>
 
-                    {/* Detected spike chips */}
                     {detectedSpikes.length > 0 && (
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
                         {detectedSpikes.slice(0, 4).map(({ v, i }) => (
@@ -1263,12 +1398,11 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* AI-generated deeper analysis */}
                     {showAI && (
                       <div style={{ borderTop: `1px solid ${COLORS.accent}22`, paddingTop: 10 }}>
                         <div style={{ fontSize: 10, color: COLORS.accent, fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>AI Analysis</div>
                         {aiLoading ? (
-                          <p style={{ fontSize: 12, color: COLORS.textMuted, margin: 0, fontStyle: "italic" }}>Analysing your usage pattern...</p>
+                          <p style={{ fontSize: 12, color: COLORS.textMuted, margin: 0, fontStyle: "italic" }}>Looking at your usage...</p>
                         ) : (
                           <p style={{ fontSize: 12.5, color: COLORS.textSub, lineHeight: 1.7, margin: 0 }}>{aiText}<span style={{ opacity: 0.5 }}>|</span></p>
                         )}
@@ -1276,7 +1410,6 @@ export default function App() {
                     )}
                   </div>
 
-                  {/* Driver Insights — always visible */}
                   <div style={{ marginBottom: 12 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Driver Insights</div>
                     {[
@@ -1353,13 +1486,13 @@ export default function App() {
                 </div>
               );
             })()}
+            </>
+            )}
           </div>
         )}
 
-        {/* ===== ACTIONS TAB ===== */}
         {tab === "actions" && (
           <div>
-            {/* Mystery Drop overlay */}
             {mysteryDrop && (
               <div style={{
                 position: "fixed", top: "50%", left: "50%",
@@ -1375,7 +1508,6 @@ export default function App() {
               </div>
             )}
 
-            {/* ── Demo Toggles ── */}
             <div style={{
               background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`,
               borderRadius: 12, padding: "10px 14px", marginBottom: 14,
@@ -1456,10 +1588,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* ── STREAK BROKEN STATE ── */}
             {streakBroken ? (
               <div>
-                {/* Broken banner */}
                 <div style={{
                   background: "linear-gradient(135deg, #fff1f2, #ffe4e6)",
                   border: `1.5px solid ${COLORS.spike}66`,
@@ -1473,7 +1603,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* What they lost — guilt-free recap */}
                   <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
                     {[
                       { val: "5", unit: "days", label: "Best streak", color: COLORS.spike },
@@ -1494,7 +1623,6 @@ export default function App() {
                     ))}
                   </div>
 
-                  {/* 7-day trail showing the break */}
                   <div style={{ marginBottom: 14 }}>
                     <div style={{ fontSize: 10, color: COLORS.textMuted, marginBottom: 6 }}>This week</div>
                     <div style={{ display: "flex", gap: 5 }}>
@@ -1522,7 +1650,6 @@ export default function App() {
                     You still saved <span style={{ color: COLORS.green, fontWeight: 700 }}>$1.25</span> — that money is yours to keep regardless of the streak.
                   </div>
 
-                  {/* Restart CTA */}
                   <button style={{
                     width: "100%", background: `linear-gradient(135deg, ${COLORS.spike}, #b91c1c)`,
                     border: "none", borderRadius: 12, color: "#fff",
@@ -1533,16 +1660,14 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* AI suggests an easier starter goal */}
                 <div style={{
                   background: "#e0f2fe", border: `1px solid ${COLORS.accent}44`,
                   borderRadius: 14, padding: 14, marginBottom: 14,
                 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.accent, marginBottom: 8 }}>AI Habit Coach</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.accent, marginBottom: 8 }}>Your Coach</div>
                   <div style={{ fontSize: 12, color: COLORS.textSub, lineHeight: 1.6, marginBottom: 10 }}>
                     Streaks breaking often means the goal is too hard for busy days. Let's start with something much simpler so you can rebuild momentum:
                   </div>
-                  {/* Easier starter goals */}
                   {[
                     { icon: "", title: "Turn off 1 standby light at 10pm", pts: 10, kwh: "0.05 kWh" },
                     { icon: "", title: "Set AC to 26°C just for tonight", pts: 15, kwh: "0.2 kWh" },
@@ -1575,9 +1700,7 @@ export default function App() {
               </div>
 
             ) : (
-              /* ── STREAK ACTIVE STATE ── */
               <div>
-                {/* ── AI Habit Coach (top of screen) ── */}
                 <div style={{
                   background: "linear-gradient(135deg, #e0f2fe, #dbeafe)",
                   border: `1.5px solid ${COLORS.accent}44`,
@@ -1590,7 +1713,7 @@ export default function App() {
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: 13, flexShrink: 0,
                     }}>AI</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: COLORS.accent }}>Habit Coach</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: COLORS.accent }}>Your Coach</div>
                     {habitCoachLoading && (
                       <div style={{ fontSize: 10, color: COLORS.textMuted, fontStyle: "italic", marginLeft: "auto" }}>thinking...</div>
                     )}
@@ -1609,7 +1732,6 @@ export default function App() {
                   }}>{reminderSet ? "✓ Reminder set for 5:30pm" : "Yes, set a 5:30pm reminder"}</button>
                 </div>
 
-                {/* Streak Hero Card */}
                 <div style={{
                   background: "linear-gradient(135deg, #fefce8, #fef9c3)",
                   border: `1.5px solid ${COLORS.gold}66`,
@@ -1643,7 +1765,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Feedback loop */}
                   <div style={{
                     marginTop: 14, background: "#fefce8",
                     border: "1px solid #3a2800", borderRadius: 12, padding: 12,
@@ -1715,7 +1836,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Streak Protection — hidden once accepted */}
                 {!streakProtectionAccepted && (
                 <div style={{
                   background: "linear-gradient(135deg, #fff1f2, #ffe4e6)",
@@ -1762,7 +1882,6 @@ export default function App() {
               </div>
             )}
 
-            {/* ── Grid Strain Event ── */}
             {gridStrainVisible && !gridStrainClaimed && (
               <div style={{
                 background: "linear-gradient(135deg, #f3e8ff, #ede9fe)",
@@ -1779,7 +1898,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Qualification */}
                 <div style={{
                   marginTop: 10, background: "#f3e8ff", border: `1px solid ${COLORS.purple}33`,
                   borderRadius: 10, padding: 10,
@@ -1833,21 +1951,19 @@ export default function App() {
               </div>
             )}
 
-
-            {/* ── AI Suggested Tasks ── */}
             <div id="ai-tasks-section" style={{
               background: "#dbeafe", border: `1px solid ${COLORS.accent}33`,
               borderRadius: 14, padding: 14, marginBottom: 14,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: aiTasks.length > 0 ? 12 : 0 }}>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.accent }}>AI Suggested Tasks</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.accent }}>Suggested Tasks</div>
                   <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 2 }}>Fresh tasks for today · 2 Nasim Road</div>
                 </div>
               </div>
 
               {aiTasksLoading && (
-                <p style={{ fontSize: 12, color: COLORS.textMuted, margin: 0, fontStyle: "italic" }}>Generating personalised tasks...</p>
+                <p style={{ fontSize: 12, color: COLORS.textMuted, margin: 0, fontStyle: "italic" }}>Finding tasks for you...</p>
               )}
 
               {!aiTasksLoading && aiTasks.length > 0 && aiTasks.map((t, i) => (
@@ -1895,12 +2011,10 @@ export default function App() {
             </div>
         )}
 
-        {/* ===== IMPACT TAB ===== */}
         {tab === "impact" && (
           <div>
             <div style={{ fontSize: 13, color: COLORS.textSub, marginBottom: 12 }}>Your cumulative impact</div>
 
-            {/* Period toggle */}
             <div style={{
               display: "flex", gap: 3, background: "#eef2f7",
               borderRadius: 12, padding: 4, marginBottom: 14,
@@ -1916,7 +2030,6 @@ export default function App() {
               ))}
             </div>
 
-            {/* Big Savings Number */}
             {(() => {
               const periods = {
                 week:  { label: "This Week",  dollar: "8.75",  kwh: "9.8",  shifted: "4.2",  peakHrs: "3",  car: "14km car ride", trees: "0.5 trees", mrt: "1 MRT trip" },
@@ -1948,7 +2061,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Milestones — dynamic per period */}
                   <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Milestones · {p.label}</div>
                   {[
                     { icon: "→", label: `Offset equivalent of a ${p.car}!`, color: COLORS.green },
@@ -1969,42 +2081,133 @@ export default function App() {
               );
             })()}
 
-            {/* Weekly Bar Chart */}
-            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Daily Progress This Week</div>
-            <div style={{
-              background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`,
-              borderRadius: 14, padding: "14px 14px 8px", marginBottom: 12,
-            }}>
-              <div style={{ display: "flex", gap: 6, alignItems: "flex-end", height: 80 }}>
-                {weeklyProgress.map((d, i) => (
-                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, height: 70, justifyContent: "flex-end" }}>
-                      <div style={{ background: COLORS.accent, borderRadius: "3px 3px 0 0", height: `${(d.shifted / 1.1) * 50}%`, minHeight: 3 }} />
-                      <div style={{ background: COLORS.green + "99", borderRadius: "3px 3px 0 0", height: `${(d.saved / 1.6) * 50}%`, minHeight: 3 }} />
+            {(() => {
+              const progressData = {
+                week: {
+                  label: "This Week",
+                  kwh: [
+                    { day: "Mon", val: 2.4 }, { day: "Tue", val: 3.1 }, { day: "Wed", val: 1.8 },
+                    { day: "Thu", val: 4.2 }, { day: "Fri", val: 3.6 }, { day: "Sat", val: 2.9 }, { day: "Sun", val: 5.1 },
+                  ],
+                  dollar: [
+                    { day: "Mon", val: 0.78 }, { day: "Tue", val: 1.01 }, { day: "Wed", val: 0.59 },
+                    { day: "Thu", val: 1.37 }, { day: "Fri", val: 1.17 }, { day: "Sat", val: 0.94 }, { day: "Sun", val: 1.66 },
+                  ],
+                },
+                month: {
+                  label: "This Month",
+                  kwh: monthlyKwhProgress,
+                  dollar: monthlyDollarProgress,
+                },
+                year: {
+                  label: "This Year",
+                  kwh: [
+                    { day: "Jan", val: 78.4 }, { day: "Feb", val: 92.1 }, { day: "Mar", val: 68.5 },
+                    { day: "Apr", val: 85.3 }, { day: "May", val: 104.2 }, { day: "Jun", val: 118.7 },
+                    { day: "Jul", val: 122.4 }, { day: "Aug", val: 130.1 }, { day: "Sep", val: 96.8 },
+                    { day: "Oct", val: 88.3 }, { day: "Nov", val: 74.6 }, { day: "Dec", val: 109.2 },
+                  ],
+                  dollar: [
+                    { day: "Jan", val: 25.52 }, { day: "Feb", val: 29.98 }, { day: "Mar", val: 22.31 },
+                    { day: "Apr", val: 27.77 }, { day: "May", val: 33.93 }, { day: "Jun", val: 38.64 },
+                    { day: "Jul", val: 39.86 }, { day: "Aug", val: 42.36 }, { day: "Sep", val: 31.52 },
+                    { day: "Oct", val: 28.75 }, { day: "Nov", val: 24.29 }, { day: "Dec", val: 35.55 },
+                  ],
+                },
+              };
+              const pd = progressData[impactPeriod];
+
+              const BarChart = ({ data, color, isCurrency }) => {
+                const BAR_AREA = 110;
+                const XLABEL_H = 16;
+                const TOTAL_H = BAR_AREA + XLABEL_H;
+                const maxVal = Math.max(...data.map(d => d.val));
+                const yMax = isCurrency
+                  ? Math.ceil(maxVal / 0.5) * 0.5
+                  : maxVal <= 10 ? Math.ceil(maxVal) : Math.ceil(maxVal / 10) * 10;
+                const total = data.reduce((a, d) => a + d.val, 0);
+                const showEvery = data.length <= 7 ? 1 : data.length <= 14 ? 2 : data.length <= 31 ? 4 : 2;
+                const yLabels = [yMax, yMax * 0.5, 0];
+                return (
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color }}>{isCurrency ? "$ Saved" : "kWh Saved"}</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color }}>{isCurrency ? `$${total.toFixed(2)}` : `${total.toFixed(1)} kWh`}</div>
                     </div>
-                    <div style={{ fontSize: 9, color: COLORS.textMuted }}>{d.day}</div>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 0 }}>
+                      {/* Y-axis: each label pinned to its grid line via absolute within a relative container */}
+                      <div style={{ position: "relative", height: TOTAL_H, flexShrink: 0, minWidth: 38, marginRight: 4 }}>
+                        {yLabels.map((v, i) => {
+                          const pct = 1 - v / yMax;
+                          const top = pct * BAR_AREA;
+                          return (
+                            <div key={i} style={{
+                              position: "absolute", top, right: 0,
+                              fontSize: 8, color: COLORS.textMuted, whiteSpace: "nowrap",
+                              transform: "translateY(-50%)",
+                            }}>
+                              {v === 0 ? "0" : isCurrency ? `$${v.toFixed(2)}` : Number.isInteger(v) ? v : v.toFixed(1)}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {/* Chart area */}
+                      <div style={{ flex: 1, position: "relative", height: TOTAL_H }}>
+                        {/* Grid lines pinned at exact y positions */}
+                        {yLabels.map((v, i) => {
+                          const top = (1 - v / yMax) * BAR_AREA;
+                          return (
+                            <div key={i} style={{
+                              position: "absolute", left: 0, right: 0, top,
+                              height: 1, background: COLORS.cardBorder, opacity: 0.7,
+                            }} />
+                          );
+                        })}
+                        {/* Bars row */}
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: BAR_AREA, display: "flex", alignItems: "flex-end", gap: data.length > 14 ? 1.5 : 4 }}>
+                          {data.map((d, i) => {
+                            const barH = Math.max((d.val / yMax) * BAR_AREA, 2);
+                            return (
+                              <div key={i} style={{ flex: 1, height: barH, background: color, borderRadius: "2px 2px 0 0", opacity: 0.85, flexShrink: 0 }} />
+                            );
+                          })}
+                        </div>
+                        {/* X-axis labels row */}
+                        <div style={{ position: "absolute", top: BAR_AREA + 2, left: 0, right: 0, display: "flex", gap: data.length > 14 ? 1.5 : 4 }}>
+                          {data.map((d, i) => (
+                            <div key={i} style={{ flex: 1, textAlign: "center" }}>
+                              {i % showEvery === 0 && <div style={{ fontSize: 7, color: COLORS.textMuted, whiteSpace: "nowrap" }}>{d.day}</div>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-                {[{ color: COLORS.green + "99", label: "$ Saved" }, { color: COLORS.accent, label: "kWh Shifted" }].map(l => (
-                  <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: 2, background: l.color }} />
-                    <span style={{ color: COLORS.textMuted }}>{l.label}</span>
+                );
+              };
+
+              return (
+                <>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>
+                    Daily Progress · {pd.label}
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 14, padding: "14px 14px 10px", marginBottom: 10 }}>
+                    <BarChart data={pd.kwh} color={COLORS.normal} isCurrency={false} />
+                  </div>
+                  <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 14, padding: "14px 14px 10px", marginBottom: 12 }}>
+                    <BarChart data={pd.dollar} color={COLORS.green} isCurrency={true} />
+                  </div>
+                </>
+              );
+            })()}
 
           </div>
         )}
 
-        {/* ===== COMMUNITY TAB ===== */}
         {tab === "community" && (
           <div>
-            <div style={{ fontSize: 13, color: COLORS.textSub, marginBottom: 14 }}>Your block vs the neighbourhood</div>
+            <div style={{ fontSize: 13, color: COLORS.textSub, marginBottom: 14 }}>See how your block stacks up across Toa Payoh</div>
 
-            {/* Neighbourhood Impact */}
             <div style={{
               background: "linear-gradient(135deg, #e0f2fe, #dbeafe)",
               border: `1.5px solid ${COLORS.normal}44`,
@@ -2013,22 +2216,15 @@ export default function App() {
               marginBottom: 12,
             }}>
               <div style={{ fontSize: 11, color: COLORS.normal, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 10 }}>If Everyone Did What You Did This Week</div>
-              {[
-                { icon: "→", label: "Enough to power a plane for 3.2 km", sub: "Your 42.3 kWh × 50,000 households" },
-                { icon: "→", label: "26 MRT train round-trips powered", sub: "Peak demand saved across the grid" },
-                { icon: "→", label: "150,000 trees' worth of carbon offset", sub: "Neighbourhood-wide extrapolation" },
-              ].map(c => (
-                <div key={c.label} style={{ display: "flex", gap: 12, marginBottom: 10, alignItems: "center" }}>
-                  <div style={{ fontSize: 26, width: 36, textAlign: "center" }}>{c.icon}</div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{c.label}</div>
-                    <div style={{ fontSize: 11, color: COLORS.textMuted }}>{c.sub}</div>
-                  </div>
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <div style={{ fontSize: 28, width: 36, textAlign: "center" }}>⚡</div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text }}>26 MRT train round-trips powered</div>
+                  <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 2 }}>Peak demand saved across the entire grid</div>
                 </div>
-              ))}
+              </div>
             </div>
 
-            {/* 2030 Goals Progress */}
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Singapore Green Plan 2030</div>
             <div style={{
               background: COLORS.card,
@@ -2063,11 +2259,9 @@ export default function App() {
                 </div>
               ))}
 
-              {/* 2030 Forest Plot Visualisation */}
               <ForestPlot />
             </div>
 
-            {/* Leaderboard */}
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Block Leaderboard · Toa Payoh</div>
             {leaderboard.map((b, i) => (
               <div key={b.block} style={{
@@ -2091,13 +2285,15 @@ export default function App() {
                   <div style={{ fontWeight: 700, fontSize: 13, color: i === 0 ? COLORS.gold : COLORS.text }}>{b.block}</div>
                   <div style={{ fontSize: 11, color: COLORS.textMuted }}>{b.saved} kWh saved this month</div>
                 </div>
-                <div style={{ fontSize: 16 }}>
-                  {b.trend === "up" ? "↑" : b.trend === "down" ? "↓" : "→"}
+                <div style={{
+                  fontSize: 18, fontWeight: 800,
+                  color: b.trend === "up" ? COLORS.green : b.trend === "down" ? COLORS.spike : COLORS.textMuted,
+                }}>
+                  {b.trend === "up" ? "↑" : b.trend === "down" ? "↓" : "–"}
                 </div>
               </div>
             ))}
 
-            {/* Drop of Water analogy */}
             <div style={{
               marginTop: 8,
               background: "#e0f2fe",
@@ -2106,22 +2302,25 @@ export default function App() {
               padding: 14,
               textAlign: "center"
             }}>
-              
               <div style={{ fontSize: 13, fontWeight: 700, marginTop: 6 }}>Every drop fills the bucket</div>
               <div style={{ fontSize: 12, color: COLORS.textSub, marginTop: 4, lineHeight: 1.6 }}>
-                Your 42.3 kWh saved is one drop. Toa Payoh combined: 8,460 kWh — enough to power 1,200 HDB flats for a day.
+                Your 42.3 kWh saved this month powers your HDB flat for <span style={{ fontWeight: 700, color: COLORS.normal }}>4.3 days</span>. Toa Payoh combined: 8,460 kWh.
               </div>
-              
             </div>
           </div>
         )}
 
-        {/* ===== REWARDS TAB ===== */}
         {tab === "rewards" && (
           <div>
-            <div style={{ fontSize: 13, color: COLORS.textSub, marginBottom: 14 }}>Your points &amp; redemptions</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ fontSize: 13, color: COLORS.textSub }}>Your points &amp; redemptions</div>
+              <button onClick={() => { setRedeemedVouchers({}); setSpentPts(0); }} style={{
+                fontSize: 10, fontWeight: 700, color: COLORS.textMuted,
+                background: COLORS.cardBorder, border: `1px solid ${COLORS.cardBorder}`,
+                borderRadius: 20, padding: "4px 10px", cursor: "pointer",
+              }}>Reset Demo</button>
+            </div>
 
-            {/* Points Hero */}
             <div style={{
               background: "linear-gradient(135deg, #fefce8, #fef9c3)",
               border: `1.5px solid ${COLORS.gold}66`,
@@ -2146,7 +2345,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Today's Score Breakdown */}
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Today's Score Breakdown</div>
             <div style={{
               background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`,
@@ -2177,7 +2375,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Multiplier Tiers */}
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Streak Multiplier Tiers</div>
             <div style={{
               background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`,
@@ -2218,7 +2415,6 @@ export default function App() {
               ))}
             </div>
 
-            {/* Voucher Redemption */}
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textSub, marginBottom: 6, letterSpacing: 1, textTransform: "uppercase" }}>Redeem Vouchers</div>
             <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 12, lineHeight: 1.5 }}>
               Delivered digitally to your SP app. Points are deducted on redemption.
@@ -2301,12 +2497,12 @@ export default function App() {
 
       </div>
 
-
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translate(-50%, -46%) scale(0.9); }
           to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
+        html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
         * { box-sizing: border-box; }
         button { font-family: inherit; }
       `}</style>
